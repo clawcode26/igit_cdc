@@ -155,15 +155,12 @@ export default function StudentDashboard() {
       <div className="content-container">
         {/* Verification Alert (only if profile loaded) */}
         {!loading && profile?.verification_status !== 'verified' && (
-          <div style={{
+          <div className="alert-banner" style={{
             background: profile?.verification_status === 'rejected' ? 'var(--status-error-bg)' : 'rgba(234, 179, 8, 0.1)',
             border: `1px solid ${profile?.verification_status === 'rejected' ? 'var(--status-error)' : 'var(--accent-hod)'}`,
             borderRadius: '16px',
             padding: '20px',
             marginBottom: '24px',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '16px',
             boxShadow: '0 4px 12px rgba(0,0,0,0.05)'
           }}>
             <div style={{
@@ -198,15 +195,12 @@ export default function StudentDashboard() {
         )}
 
         {/* Phase 3: Live Class Banner */}
-        <div style={{
+        <div className="live-banner" style={{
           background: activeLiveSession ? 'linear-gradient(90deg, #185FA5 0%, #1a73e8 100%)' : 'linear-gradient(90deg, #0F6E56 0%, #15803d 100%)',
           borderRadius: '16px',
           padding: '24px',
           marginBottom: '24px',
           color: 'white',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
           boxShadow: '0 10px 25px rgba(0, 0, 0, 0.1)',
           position: 'relative',
           overflow: 'hidden',
@@ -291,7 +285,7 @@ export default function StudentDashboard() {
           </div>
         )}
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
+        <div className="dashboard-grid">
           {/* Phase 3: Digital ID Section */}
           <div className="card" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', background: 'var(--surface-secondary)', border: 'none', boxShadow: 'inset 0 0 40px rgba(0,0,0,0.05)' }}>
             <h2 className="section-heading" style={{ marginBottom: '8px', alignSelf: 'flex-start' }}>Digital Wallet</h2>
@@ -436,6 +430,27 @@ export default function StudentDashboard() {
           0% { opacity: 1; transform: scale(1); }
           50% { opacity: 0.5; transform: scale(1.2); }
           100% { opacity: 1; transform: scale(1); }
+        }
+        .live-banner {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          gap: 16px;
+        }
+        .alert-banner {
+          display: flex;
+          align-items: center;
+          gap: 16px;
+        }
+        @media (max-width: 768px) {
+          .live-banner {
+            flex-direction: column;
+            align-items: flex-start;
+          }
+          .alert-banner {
+            flex-direction: column;
+            align-items: flex-start;
+          }
         }
       `}</style>
     </>

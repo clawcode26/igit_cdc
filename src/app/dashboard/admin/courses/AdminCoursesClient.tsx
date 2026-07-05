@@ -185,7 +185,7 @@ export function AdminCoursesClient() {
       <div className="content-container">
         
         {/* Semester Selection & Mapping Logic */}
-        <div className="card" style={{ marginBottom: '24px', background: '#F9FAFB', border: '1px dashed #D1D5DB' }}>
+        <div className="card" style={{ marginBottom: '24px', background: 'var(--surface-secondary)', border: '1px dashed #D1D5DB' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '16px' }}>
                 <div>
                     <h3 style={{ fontSize: '15px', fontWeight: 600, marginBottom: '4px' }}>Assign Courses to Semester</h3>
@@ -194,7 +194,7 @@ export function AdminCoursesClient() {
                 <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
                     <select 
                         className="form-input" 
-                        style={{ width: '240px', background: 'white' }}
+                        style={{ width: '240px', background: 'var(--surface-primary)' }}
                         value={selectedSemesterId} 
                         onChange={e => setSelectedSemesterId(e.target.value)}
                     >

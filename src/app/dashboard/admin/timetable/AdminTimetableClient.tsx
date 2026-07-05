@@ -178,7 +178,7 @@ export function AdminTimetableClient() {
                               padding: '4px', 
                               height: 'auto',
                               borderColor: slot ? '#E24B4A' : 'var(--border-color)',
-                              background: slot ? '#FDEDED' : 'transparent'
+                              background: slot ? 'var(--accent-admin-bg)' : 'transparent'
                             }}
                             value={slot?.offering_id || ''}
                             onChange={(e) => handleAssignSlot(day, p.id, e.target.value)}

@@ -83,19 +83,13 @@ export default function LandingStorageSearch({ isDark, T }: { isDark: boolean; T
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
             <div style={{ 
               display: 'inline-flex', alignItems: 'center', gap: '10px', 
-              background: isDark ? 'rgba(99, 102, 241, 0.12)' : 'rgba(99, 102, 241, 0.08)', 
-              border: `1px solid ${INDIGO_ACCENT_BORDER}`, 
-              color: INDIGO_ACCENT, padding: '6px 20px', borderRadius: '99px', fontSize: isMobile ? '12px' : '14px', 
-              fontWeight: 800, marginBottom: '24px' 
+              background: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)', 
+              border: `1px solid ${T.border}`, 
+              color: T.text, padding: '6px 20px', borderRadius: '4px', fontSize: isMobile ? '12px' : '14px', 
+              fontWeight: 800, marginBottom: '48px' 
             }}>
-              <HardDrive size={18} /> Central Storage
+              <HardDrive size={18} /> Docs
             </div>
-            <h2 style={{ fontSize: isMobile ? '28px' : 'clamp(32px, 4vw, 44px)', fontWeight: 900, marginBottom: '16px', color: T.text, transition: 'color 0.4s' }}>
-              Instant Resource Access
-            </h2>
-            <p style={{ color: T.muted, fontSize: isMobile ? '14px' : '17px', margin: `0 auto ${isMobile ? '32px' : '48px'}`, maxWidth: '600px', transition: 'color 0.4s' }}>
-              Browse and download course materials, department archives, and research papers shared by the community.
-            </p>
           </motion.div>
 
           {/* Search Bar Wrapper with Dynamic Border */}
@@ -109,21 +103,20 @@ export default function LandingStorageSearch({ isDark, T }: { isDark: boolean; T
               maxWidth: '700px', 
               margin: '0 auto',
               padding: isMobile ? '6px' : '8px',
-              borderRadius: '32px',
-              background: searchQuery ? (isDark ? 'rgba(99, 102, 241, 0.15)' : 'rgba(99, 102, 241, 0.1)') : 'transparent',
-              border: `1.5px solid ${searchQuery ? INDIGO_ACCENT : 'transparent'}`,
-              boxShadow: searchQuery ? (isDark ? `0 0 50px ${INDIGO_ACCENT}22` : `0 15px 40px ${INDIGO_ACCENT}15`) : 'none',
+              borderRadius: '8px',
+              background: 'transparent',
+              border: 'none',
+              boxShadow: 'none',
               transition: 'background 0.4s, border 0.4s, box-shadow 0.4s'
             }}
           >
             <div style={{ 
               display: 'flex', alignItems: 'center', gap: isMobile ? '12px' : '16px', 
-              background: isDark ? 'rgba(15,15,22,0.9)' : '#FFFFFF', 
-              border: `1.5px solid ${searchQuery ? INDIGO_ACCENT : T.border}`, 
-              borderRadius: '24px', padding: isMobile ? '12px 20px' : '16px 28px', 
-              backdropFilter: 'blur(20px)',
+              background: isDark ? '#0F172A' : '#FFFFFF', 
+              border: `1px solid ${T.border}`, 
+              borderRadius: '8px', padding: isMobile ? '12px 20px' : '16px 28px', 
               transition: 'all 0.3s ease',
-              boxShadow: searchQuery ? 'inset 0 0 15px rgba(99, 102, 241, 0.05)' : 'none'
+              boxShadow: 'none'
             }}>
               <Search size={isMobile ? 18 : 22} style={{ color: searchQuery ? INDIGO_ACCENT : T.muted }} />
               <input 
@@ -151,9 +144,9 @@ export default function LandingStorageSearch({ isDark, T }: { isDark: boolean; T
                   }}
                 >
                   <div style={{ 
-                    background: isDark ? 'rgba(15,15,22,0.85)' : '#FFFFFF', 
-                    border: `1.5px solid ${T.border}`, borderRadius: '24px', 
-                    padding: '8px', backdropFilter: 'blur(24px)'
+                    background: isDark ? '#0F172A' : '#FFFFFF', 
+                    border: `1px solid ${T.border}`, borderRadius: '8px', 
+                    padding: '8px',
                   }}>
                     {results.length > 0 ? (
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
@@ -161,8 +154,8 @@ export default function LandingStorageSearch({ isDark, T }: { isDark: boolean; T
                           <motion.div 
                             layout
                             key={file.id} 
-                            whileHover={{ background: isDark ? 'rgba(255,255,255,0.05)' : INDIGO_ACCENT_SOFT }}
-                            style={{ display: 'flex', alignItems: 'center', gap: isMobile ? '10px' : '16px', padding: isMobile ? '10px 12px' : '14px 20px', borderRadius: '16px', cursor: 'default', textAlign: 'left' }}
+                            whileHover={{ background: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.03)' }}
+                            style={{ display: 'flex', alignItems: 'center', gap: isMobile ? '10px' : '16px', padding: isMobile ? '10px 12px' : '14px 20px', borderRadius: '8px', cursor: 'default', textAlign: 'left' }}
                           >
                             <div style={{ 
                               width: isMobile ? '36px' : '44px', height: isMobile ? '36px' : '44px', borderRadius: '10px', 
@@ -252,10 +245,10 @@ export default function LandingStorageSearch({ isDark, T }: { isDark: boolean; T
                 onClick={(e) => e.stopPropagation()}
                 style={{
                   width: '100%', maxWidth: '1100px', height: isMobile ? '100vh' : '90vh',
-                  background: isDark ? '#0A0A0F' : '#FFFFFF',
-                  borderRadius: isMobile ? '0' : '24px', overflow: 'hidden', display: 'flex', flexDirection: 'column',
+                  background: isDark ? '#0F172A' : '#FFFFFF',
+                  borderRadius: isMobile ? '0' : '8px', overflow: 'hidden', display: 'flex', flexDirection: 'column',
                   border: isMobile ? 'none' : `1px solid ${isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)'}`,
-                  boxShadow: '0 40px 100px rgba(0,0,0,0.5)'
+                  boxShadow: 'none'
                 }}
               >
                 <div style={{ 

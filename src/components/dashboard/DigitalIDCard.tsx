@@ -52,7 +52,8 @@ export function DigitalIDCard({
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
       style={{
-        width: '340px',
+        width: '100%',
+        maxWidth: '340px',
         height: '200px',
         perspective: '1000px',
         cursor: 'pointer',

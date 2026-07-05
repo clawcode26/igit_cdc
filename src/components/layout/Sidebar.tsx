@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { auth } from '@/lib/firebase/config'
@@ -43,6 +43,15 @@ export function Sidebar({ role, fullName, email, initials, navItems }: SidebarPr
   const pathname = usePathname()
   const router = useRouter()
   const accentColor = ROLE_COLORS[role]
+
+  useEffect(() => {
+    if (collapsed) {
+      document.body.classList.add('sidebar-closed')
+    } else {
+      document.body.classList.remove('sidebar-closed')
+    }
+    return () => document.body.classList.remove('sidebar-closed')
+  }, [collapsed])
 
   async function handleSignOut() {
     try {

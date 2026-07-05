@@ -13,7 +13,6 @@ export default function AdminDashboard() {
   const [recentLogs, setRecentLogs] = useState<any[]>([])
   const [onlineAdmins, setOnlineAdmins] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
-  const [moodCounts, setMoodCounts] = useState<Record<string, number>>({})
 
   const [migrating, setMigrating] = useState(false)
   const [migrationResult, setMigrationResult] = useState<any>(null)
@@ -45,7 +44,6 @@ export default function AdminDashboard() {
       const cached = sessionStorage.getItem(cacheKey)
       if (cached) {
         const decoded = JSON.parse(cached)
-        setMoodCounts(decoded.moodCounts || {})
         setStats(decoded.stats || [])
         setRecentLogs(decoded.recentLogs || [])
         setOnlineAdmins(decoded.onlineAdmins || [])
@@ -58,14 +56,13 @@ export default function AdminDashboard() {
         const response = await fetch(`/api/admin/dashboard?uid=${user?.uid}`)
         if (response.ok) {
           const data = await response.json()
-          setMoodCounts(data.moodCounts || {})
           
           const s = data.stats || {}
           const newStats = [
-            { label: 'Total users', value: s.usersCount || 0, icon: '👥', color: '#E24B4A', bg: '#FDEDED' },
-            { label: 'Students', value: s.studentsCount || 0, icon: '🎓', color: '#0F6E56', bg: '#E7F4F0' },
-            { label: 'Faculty members', value: s.facultyCount || 0, icon: '👨‍🏫', color: '#185FA5', bg: '#E8F0F9' },
-            { label: 'Active semester(s)', value: s.semesterDisplay || 'None', icon: '📅', color: '#534AB7', bg: '#EEEDF9', isText: true },
+            { label: 'Total users', value: s.usersCount || 0, icon: '👥', color: '#E24B4A', bg: 'var(--accent-admin-bg)', graph: s.graphData?.total },
+            { label: 'Students', value: s.studentsCount || 0, icon: '🎓', color: '#0F6E56', bg: 'var(--status-success-bg)', graph: s.graphData?.students },
+            { label: 'Faculty members', value: s.facultyCount || 0, icon: '👨‍🏫', color: '#185FA5', bg: 'var(--accent-faculty-bg)', graph: s.graphData?.faculty },
+            { label: 'Active semester(s)', value: s.semesterDisplay || 'None', icon: '📅', color: '#534AB7', bg: 'var(--accent-hod-bg)', isText: true },
           ]
           setStats(newStats)
           setRecentLogs(data.recentLogs || [])
@@ -74,7 +71,6 @@ export default function AdminDashboard() {
 
           // 3. Update Cache
           sessionStorage.setItem(cacheKey, JSON.stringify({
-            moodCounts: data.moodCounts,
             stats: newStats,
             recentLogs: data.recentLogs,
             onlineAdmins: data.onlineAdmins,
@@ -90,24 +86,15 @@ export default function AdminDashboard() {
           facultyCountResult,
           activeSemesterSnap,
           recentLogsSnap,
-          onlineAdminsSnap,
-          moodSnap
+          onlineAdminsSnap
         ] = await Promise.all([
           getCountFromServer(collection(db, 'profiles')),
           getCountFromServer(query(collection(db, 'profiles'), where('role', '==', 'student'))),
           getCountFromServer(query(collection(db, 'profiles'), where('role', '==', 'faculty'))),
           getDocs(query(collection(db, 'semesters'), where('is_active', '==', true))),
           getDocs(query(collection(db, 'audit_logs'), orderBy('created_at', 'desc'), limit(8))),
-          getDocs(query(collection(db, 'admin_presence'), where('last_seen', '>=', new Date(Date.now() - 2 * 60 * 1000)))),
-          getDocs(query(collection(db, 'student_posts'), limit(50)))
+          getDocs(query(collection(db, 'admin_presence'), where('last_seen', '>=', new Date(Date.now() - 2 * 60 * 1000))))
         ])
-
-        const moods: Record<string, number> = {}
-        moodSnap.docs.forEach(d => {
-            const m = d.data().mood || '😊'
-            moods[m] = (moods[m] || 0) + 1
-        })
-        setMoodCounts(moods)
 
         const activeSemesters = activeSemesterSnap.docs.map(doc => doc.data().name)
         const semesterDisplay = activeSemesters.length === 0 ? 'None' : 
@@ -115,10 +102,10 @@ export default function AdminDashboard() {
                                  `${activeSemesters.length} Active`
 
         const fallbackStats = [
-          { label: 'Total users', value: usersCountResult.data().count, icon: '👥', color: '#E24B4A', bg: '#FDEDED' },
-          { label: 'Students', value: studentsCountResult.data().count, icon: '🎓', color: '#0F6E56', bg: '#E7F4F0' },
-          { label: 'Faculty members', value: facultyCountResult.data().count, icon: '👨‍🏫', color: '#185FA5', bg: '#E8F0F9' },
-          { label: 'Active semester(s)', value: semesterDisplay, icon: '📅', color: '#534AB7', bg: '#EEEDF9', isText: true },
+          { label: 'Total users', value: usersCountResult.data().count, icon: '👥', color: '#E24B4A', bg: 'var(--accent-admin-bg)', graph: [0,0,0,0,0,0] },
+          { label: 'Students', value: studentsCountResult.data().count, icon: '🎓', color: '#0F6E56', bg: 'var(--status-success-bg)', graph: [0,0,0,0,0,0] },
+          { label: 'Faculty members', value: facultyCountResult.data().count, icon: '👨‍🏫', color: '#185FA5', bg: 'var(--accent-faculty-bg)', graph: [0,0,0,0,0,0] },
+          { label: 'Active semester(s)', value: semesterDisplay, icon: '📅', color: '#534AB7', bg: 'var(--accent-hod-bg)', isText: true },
         ]
         setStats(fallbackStats)
 
@@ -134,7 +121,6 @@ export default function AdminDashboard() {
 
         // 5. Update Cache from fallback
         sessionStorage.setItem(cacheKey, JSON.stringify({
-          moodCounts: moods,
           stats: fallbackStats,
           recentLogs: fallbackLogs,
           onlineAdmins: fallbackOnline,
@@ -170,7 +156,7 @@ export default function AdminDashboard() {
         {!migrationResult && !migrating && !migrationError ? (
            <div className="card" style={{ marginBottom: '24px', border: '1px solid #534AB7', background: 'rgba(83, 74, 183, 0.05)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
              <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
-               <div style={{ background: '#EEEDF9', padding: '12px', borderRadius: '12px', fontSize: '24px' }}>⚡</div>
+               <div style={{ background: 'var(--accent-hod-bg)', padding: '12px', borderRadius: '12px', fontSize: '24px' }}>⚡</div>
                <div>
                  <h3 style={{ fontSize: '15px', fontWeight: 600, color: '#534AB7' }}>Performance Migration Available</h3>
                  <p className="secondary-text" style={{ fontSize: '12px' }}>Move your data to MongoDB Atlas (Mumbai) to eliminate regional lag.</p>
@@ -183,7 +169,7 @@ export default function AdminDashboard() {
         ) : migrationError ? (
             <div className="card" style={{ marginBottom: '24px', border: '1px solid #E24B4A', background: 'rgba(226, 75, 74, 0.05)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
-                    <div style={{ background: '#FDEDED', padding: '12px', borderRadius: '12px', fontSize: '24px' }}>❌</div>
+                    <div style={{ background: 'var(--accent-admin-bg)', padding: '12px', borderRadius: '12px', fontSize: '24px' }}>❌</div>
                     <div>
                         <h3 style={{ fontSize: '15px', fontWeight: 600, color: '#E24B4A' }}>Sync Failed</h3>
                         <p className="secondary-text" style={{ fontSize: '12px' }}>{migrationError}</p>
@@ -195,7 +181,7 @@ export default function AdminDashboard() {
           <div className="card" style={{ marginBottom: '24px', border: '1px solid #0F6E56', background: 'rgba(15, 110, 86, 0.05)' }}>
              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
-                 <div style={{ background: '#E7F4F0', padding: '12px', borderRadius: '12px', fontSize: '24px' }}>✅</div>
+                 <div style={{ background: 'var(--status-success-bg)', padding: '12px', borderRadius: '12px', fontSize: '24px' }}>✅</div>
                  <div>
                    <h3 style={{ fontSize: '15px', fontWeight: 600, color: '#0F6E56' }}>Migration Successful</h3>
                    <p className="secondary-text" style={{ fontSize: '12px' }}>
@@ -218,38 +204,24 @@ export default function AdminDashboard() {
           {loading ? [1,2,3,4].map(i => (
              <div key={i} className="stat-card skeleton" style={{ height: '100px', opacity: 0.5 }}></div>
           )) : stats.map((stat) => (
-            <div key={stat.label} className="stat-card">
-              <div className="stat-icon" style={{ background: stat.bg, fontSize: '18px' }}>{stat.icon}</div>
-              <div className={stat.isText ? 'section-heading' : 'stat-value'} style={{ color: stat.color }}>{stat.value}</div>
-              <div className="stat-label">{stat.label}</div>
+            <div key={stat.label} className="stat-card" style={{ display: 'flex', flexDirection: 'column', padding: '24px', gap: '16px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <div className="stat-label" style={{ fontSize: '14px', fontWeight: 500, color: 'var(--text-secondary)' }}>{stat.label}</div>
+                <div className={stat.isText ? 'section-heading' : 'stat-value'} style={{ color: stat.color, fontSize: '36px', fontWeight: 'bold', lineHeight: 1 }}>{stat.value}</div>
+              </div>
+              {stat.graph && (
+                <div style={{ width: '100%', height: '40px' }}>
+                  <svg width="100%" height="100%" viewBox="0 0 100 40" preserveAspectRatio="none">
+                    <path d="M0,35 Q15,25 25,30 T45,20 T65,25 T100,10" fill="none" stroke={stat.color} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                </div>
+              )}
             </div>
           ))}
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
           
-          <div className="card" style={{ gridColumn: 'span 2', background: 'linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%)', color: 'white' }}>
-            <h2 className="section-heading" style={{ color: 'white', marginBottom: '4px' }}>Department Sentiment</h2>
-            <p style={{ fontSize: '12px', opacity: 0.7, marginBottom: '20px' }}>Real-time student mood aggregated from the social feed</p>
-            {loading ? (
-                <div className="skeleton" style={{ height: '60px', width: '100%', opacity: 0.2 }}></div>
-            ) : (
-                <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
-                    {Object.entries(moodCounts).length > 0 ? Object.entries(moodCounts).map(([emoji, count]) => (
-                        <div key={emoji} style={{ background: 'rgba(255,255,255,0.05)', padding: '12px 20px', borderRadius: '12px', display: 'flex', alignItems: 'center', gap: '10px', border: '1px solid rgba(255,255,255,0.1)' }}>
-                            <span style={{ fontSize: '24px' }}>{emoji}</span>
-                            <div style={{ textAlign: 'right' }}>
-                                <div style={{ fontWeight: 700, fontSize: '18px' }}>{count}</div>
-                                <div style={{ fontSize: '10px', opacity: 0.6, textTransform: 'uppercase' }}>Students</div>
-                            </div>
-                        </div>
-                    )) : (
-                        <p style={{ opacity: 0.5, fontSize: '12px' }}>No mood data available yet.</p>
-                    )}
-                </div>
-            )}
-          </div>
-
           <div className="card">
             <div className="section-row">
               <h2 className="section-heading">Admin presence</h2>

@@ -37,8 +37,8 @@ const getTheme = (isDark: boolean) => ({
   muted: isDark ? '#9CA3AF' : '#6B7280',
   border: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.05)',
   faint: isDark ? 'rgba(255, 255, 255, 0.03)' : 'rgba(0, 0, 0, 0.02)',
-  accent: '#B9FF66',
-  accentDark: '#91cc4a',
+  accent: isDark ? '#FFFFFF' : '#111827',
+  accentDark: isDark ? '#E5E7EB' : '#000000',
 })
 
 const FadeUp = ({ children, delay = 0 }: { children: React.ReactNode; delay?: number }) => (
@@ -165,19 +165,20 @@ function LoginContent() {
       fontFamily: 'inherit',
       transition: 'background 0.4s ease'
     }}>
-      {/* Background Glow */}
-      <div style={{ position: 'fixed', top: '20%', left: '50%', transform: 'translate(-50%, -50%)', width: '600px', height: '600px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(185,255,102,0.08) 0%, transparent 70%)', pointerEvents: 'none', zIndex: 0 }} />
+      {/* Top Left Back Button */}
+      <div style={{ position: 'absolute', top: '32px', left: '32px', zIndex: 10 }}>
+        <Link href="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '8px', color: T.muted, fontSize: '14px', fontWeight: 500 }}>
+          <ArrowLeft size={16} /> Back to Portal
+        </Link>
+      </div>
 
       <div style={{ width: '100%', maxWidth: '440px', position: 'relative', zIndex: 1 }}>
         
         {/* Header Badge */}
         <FadeUp>
           <div style={{ textAlign: 'center', marginBottom: '40px' }}>
-            <Link href="/" style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '8px', marginBottom: '24px', padding: '8px 16px', borderRadius: '12px', background: T.faint, border: `1px solid ${T.border}`, color: T.muted, fontSize: '13px', fontWeight: 600, transition: 'all 0.3s' }}>
-              <ArrowLeft size={16} /> Back to Portal
-            </Link>
             <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
-              <span style={{ background: isDark ? 'rgba(185,255,102,0.1)' : 'rgba(22,163,74,0.08)', border: isDark ? '1px solid rgba(185,255,102,0.3)' : '1px solid rgba(22,163,74,0.25)', color: isDark ? T.accent : '#16a34a', padding: '6px 16px', borderRadius: '99px', fontSize: '12px', fontWeight: 800 }}>
+              <span style={{ background: T.faint, border: `1px solid ${T.border}`, color: T.text, padding: '6px 16px', borderRadius: '99px', fontSize: '12px', fontWeight: 600 }}>
                 🎓 CIVIL ENGINEERING · IGIT
               </span>
             </div>
@@ -244,7 +245,7 @@ function LoginContent() {
                       <button type="button" onClick={() => setMode('reset')} style={{ background: 'none', border: 'none', color: T.muted, fontSize: '13px', cursor: 'pointer', fontWeight: 500 }}>Forgot Password?</button>
                     </div>
                   </div>
-                  <PrimaryButton loading={loading} text="Sign In Access" T={T} />
+                  <PrimaryButton loading={loading} text="Sign In" T={T} isDark={isDark} />
                 </motion.form>
               )}
 
@@ -284,7 +285,7 @@ function LoginContent() {
                   )}
 
                   <InputField label="Create Password" icon={<Lock size={18} />} placeholder="Min 8 chars" value={password} onChange={setPassword} type="password" T={T} isDark={isDark} />
-                  <PrimaryButton loading={loading} text="Create Workspace" T={T} />
+                  <PrimaryButton loading={loading} text="Create Account" T={T} isDark={isDark} />
                 </motion.form>
               )}
 
@@ -309,7 +310,7 @@ function LoginContent() {
                     <>
                       <InputField label="Verification Email" icon={<Mail size={18} />} placeholder="name@igit.ac.in" value={email} onChange={setEmail} type="email" T={T} isDark={isDark} />
                       <p style={{ fontSize: '13px', color: T.muted, lineHeight: 1.5 }}>Enter your registered email and we'll send you a link to regain access to your account.</p>
-                      <PrimaryButton loading={loading} text="Send Recovery Link" T={T} />
+                      <PrimaryButton loading={loading} text="Send Recovery Link" T={T} isDark={isDark} />
                       <button type="button" onClick={() => setMode('login')} style={{ background: 'none', border: 'none', color: T.muted, fontSize: '13px', cursor: 'pointer', fontWeight: 600 }}>Cancel & Return</button>
                     </>
                   )}
@@ -376,7 +377,7 @@ function InputField({ label, icon, placeholder, value, onChange, type = 'text', 
   )
 }
 
-function PrimaryButton({ loading, text, T }: any) {
+function PrimaryButton({ loading, text, T, isDark }: any) {
   return (
     <motion.button
       whileHover={{ scale: 1.02 }}
@@ -386,26 +387,23 @@ function PrimaryButton({ loading, text, T }: any) {
       style={{
         width: '100%',
         padding: '16px',
-        background: `linear-gradient(135deg, ${T.accent}, ${T.accentDark})`,
+        background: T.accent,
         border: 'none',
         borderRadius: '14px',
-        color: '#191A23',
+        color: isDark ? '#000000' : '#FFFFFF',
         fontSize: '16px',
-        fontWeight: 900,
+        fontWeight: 600,
         cursor: loading ? 'not-allowed' : 'pointer',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         gap: '10px',
-        boxShadow: '0 8px 24px rgba(185,255,102,0.2)'
       }}
     >
       {loading ? (
         <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1, ease: 'linear' }} style={{ width: '20px', height: '20px', border: '2.5px solid rgba(0,0,0,0.1)', borderTopColor: '#000', borderRadius: '50%' }} />
       ) : (
-        <>
-          {text} <ChevronRight size={18} />
-        </>
+        <>{text}</>
       )}
     </motion.button>
   )

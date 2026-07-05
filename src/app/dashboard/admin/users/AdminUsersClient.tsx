@@ -5,6 +5,7 @@ import { db } from '@/lib/firebase/config'
 import { doc, updateDoc, setDoc } from 'firebase/firestore'
 import { logAction } from '@/lib/logAction'
 import toast from 'react-hot-toast'
+import { Square, CheckSquare, Building, Mail, Briefcase, Hash, User, Calendar, MoreHorizontal, GraduationCap, Copy } from 'lucide-react'
 import type { Profile, Department, Batch, UserRole } from '@/types'
 
 const ROLES: UserRole[] = ['admin', 'hod', 'faculty', 'student', 'alumni']
@@ -31,6 +32,7 @@ export function AdminUsersClient({ users: initialUsers, departments, batches }: 
   const [view, setView] = useState<'all' | 'pending'>('all')
   const [rejectingId, setRejectingId] = useState<string | null>(null)
   const [rejectionReason, setRejectionReason] = useState('')
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
 
   // Create user form state
   const [newUser, setNewUser] = useState({
@@ -181,6 +183,26 @@ export function AdminUsersClient({ users: initialUsers, departments, batches }: 
     return `${Math.floor(hrs / 24)}d ago`
   }
 
+  const handleCopy = (text: string) => {
+    navigator.clipboard.writeText(text)
+    toast.success('Copied to clipboard', { duration: 2000 })
+  }
+
+  const toggleSelectAll = () => {
+    if (selectedIds.size === filtered.length && filtered.length > 0) {
+      setSelectedIds(new Set())
+    } else {
+      setSelectedIds(new Set(filtered.map(u => u.id)))
+    }
+  }
+
+  const toggleSelect = (id: string) => {
+    const newSet = new Set(selectedIds)
+    if (newSet.has(id)) newSet.delete(id)
+    else newSet.add(id)
+    setSelectedIds(newSet)
+  }
+
   return (
     <div>
       <div style={{ display: 'flex', borderBottom: '1px solid var(--border-color)', marginBottom: '24px', gap: '24px' }}>
@@ -246,88 +268,124 @@ export function AdminUsersClient({ users: initialUsers, departments, batches }: 
         </div>
       </div>
 
-      <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
-        <table className="data-table">
+      <div style={{ background: 'var(--surface-primary)', borderRadius: '8px', border: '1px solid #E2E8F0', overflowX: 'auto' }}>
+        <table className="data-table spreadsheet-table">
           <thead>
             <tr>
-              <th>User</th>
-              <th>Role</th>
-              <th>Roll / Designation</th>
-              <th>Last login</th>
-              <th>Status</th>
-              <th>Actions</th>
+              <th style={{ width: '40px', textAlign: 'center', cursor: 'pointer', borderRight: '1px solid #E2E8F0' }} onClick={toggleSelectAll}>
+                {selectedIds.size === filtered.length && filtered.length > 0 ? (
+                  <CheckSquare size={16} color="#0EA5E9" />
+                ) : (
+                  <Square size={16} color="#CBD5E1" />
+                )}
+              </th>
+              <th style={{ borderRight: '1px solid #E2E8F0' }}><div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><Hash size={14} /> ID</div></th>
+              <th style={{ borderRight: '1px solid #E2E8F0' }}><div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><User size={14} /> Full Name</div></th>
+              <th style={{ borderRight: '1px solid #E2E8F0' }}><div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><Building size={14} /> Role</div></th>
+              <th style={{ borderRight: '1px solid #E2E8F0' }}><div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><Mail size={14} /> Email</div></th>
+              <th style={{ borderRight: '1px solid #E2E8F0' }}><div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><Briefcase size={14} /> Status</div></th>
+              <th style={{ borderRight: '1px solid #E2E8F0' }}><div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><Calendar size={14} /> Last Login</div></th>
+              <th style={{ borderRight: '1px solid #E2E8F0' }}><div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><GraduationCap size={14} /> Details</div></th>
+              <th style={{ width: '40px', textAlign: 'center' }}></th>
             </tr>
           </thead>
           <tbody>
-            {filtered.map(user => (
-              <tr key={user.id}>
-                <td>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                    {user.avatar_url ? (
-                      <img src={user.avatar_url} alt="" className="avatar avatar-sm" style={{ borderRadius: '50%' }} />
+            {filtered.map(user => {
+              const isSelected = selectedIds.has(user.id)
+              const roleColors: Record<string, string> = {
+                admin: '#EF4444', // Red
+                hod: '#A855F7', // Purple
+                faculty: '#22C55E', // Green
+                student: '#3B82F6', // Blue
+                alumni: '#F97316', // Orange
+              }
+              const displayId = user.roll_no || user.registration_no || user.id.slice(0, 8).toUpperCase()
+              
+              return (
+                <tr key={user.id} style={{ background: isSelected ? 'var(--surface-secondary)' : 'transparent' }}>
+                  <td style={{ textAlign: 'center', cursor: 'pointer', borderRight: '1px solid #E2E8F0' }} onClick={() => toggleSelect(user.id)}>
+                    {isSelected ? (
+                      <CheckSquare size={16} color="#0EA5E9" />
                     ) : (
-                      <div
-                        className="avatar avatar-sm"
-                        style={{ background: 'var(--surface-secondary)', flexShrink: 0 }}
-                      >
-                        {String(user.full_name || user.email || '?').toUpperCase().charAt(0)}
-                      </div>
+                      <Square size={16} color="#E2E8F0" />
                     )}
-                    <div>
-                      <div style={{ fontSize: '13px', fontWeight: 500 }}>{user.full_name || '—'}</div>
-                      <div style={{ fontSize: '11px', color: 'var(--text-tertiary)' }}>{user.email}</div>
+                  </td>
+                  <td style={{ color: 'var(--text-secondary)', fontWeight: 500, borderRight: '1px solid #E2E8F0' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px' }}>
+                      {displayId}
+                      <button onClick={() => handleCopy(displayId)} style={{ background: 'none', border: 'none', color: 'var(--text-tertiary)', cursor: 'pointer', padding: '2px' }}><Copy size={12} /></button>
                     </div>
-                  </div>
-                </td>
-                <td>
-                  <span className={`badge ${ROLE_COLORS[user.role]}`}>{user.role}</span>
-                </td>
-                <td className="secondary-text">
-                  {user.role === 'alumni' ? (
-                    <div>{user.graduation_year} — {user.current_company || 'N/A'}</div>
-                  ) : (
-                    <div>
-                      {user.roll_no || user.designation || '—'}
-                      {user.registration_no && (
-                        <div style={{ fontSize: '10px', color: 'var(--text-tertiary)' }}>Reg: {user.registration_no}</div>
-                      )}
+                  </td>
+                  <td style={{ fontWeight: 500, color: 'var(--text-primary)', borderRight: '1px solid #E2E8F0' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px' }}>
+                      {user.full_name || '—'}
+                      <button onClick={() => handleCopy(user.full_name || '')} style={{ background: 'none', border: 'none', color: 'var(--text-tertiary)', cursor: 'pointer', padding: '2px' }}><Copy size={12} /></button>
                     </div>
-                  )}
-                </td>
-                <td className="secondary-text">{timeAgo(user.last_login)}</td>
-                <td>
-                  <span className={`badge ${user.is_active ? 'badge-success' : 'badge-neutral'}`}>
-                    {user.is_active ? 'Active' : 'Inactive'}
-                  </span>
-                </td>
-                <td>
-                  <div style={{ display: 'flex', gap: '4px' }}>
-                    {user.verification_status === 'pending' ? (
-                      <>
-                        <button onClick={() => handleVerify(user, 'verified')} className="btn btn-sm btn-filled" style={{ background: '#27AE60', borderColor: '#27AE60' }}>Approve</button>
-                        <button onClick={() => setRejectingId(user.id)} className="btn btn-sm btn-outlined" style={{ '--role-accent': '#E74C3C' } as any}>Reject</button>
-                      </>
+                  </td>
+                  <td style={{ borderRight: '1px solid #E2E8F0' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: roleColors[user.role] || 'var(--text-tertiary)' }} />
+                      <span style={{ textTransform: 'capitalize', fontWeight: 500, color: 'var(--text-primary)' }}>{user.role}</span>
+                    </div>
+                  </td>
+                  <td style={{ color: 'var(--text-secondary)', borderRight: '1px solid #E2E8F0' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px' }}>
+                      {user.email}
+                      <button onClick={() => handleCopy(user.email || '')} style={{ background: 'none', border: 'none', color: 'var(--text-tertiary)', cursor: 'pointer', padding: '2px' }}><Copy size={12} /></button>
+                    </div>
+                  </td>
+                  <td style={{ borderRight: '1px solid #E2E8F0' }}>
+                    <select 
+                      value={user.is_active ? 'active' : 'inactive'}
+                      onChange={(e) => {
+                        const newActive = e.target.value === 'active'
+                        if (user.is_active !== newActive) {
+                          handleToggleActive(user)
+                        }
+                      }}
+                      style={{ 
+                        padding: '4px 28px 4px 10px', 
+                        borderRadius: '12px', 
+                        fontSize: '11px', 
+                        fontWeight: 600,
+                        backgroundColor: user.is_active ? '#0F6E56' : '#E24B4A',
+                        color: '#FFFFFF',
+                        border: 'none',
+                        cursor: 'pointer',
+                        outline: 'none',
+                        appearance: 'none',
+                        WebkitAppearance: 'none',
+                        backgroundImage: `url('data:image/svg+xml;utf8,<svg fill="%23FFFFFF" height="14" viewBox="0 0 24 24" width="14" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>')`,
+                        backgroundRepeat: 'no-repeat',
+                        backgroundPosition: 'right 6px center'
+                      }}
+                    >
+                      <option value="active" style={{ background: 'var(--surface-primary)', color: 'var(--text-primary)', fontWeight: 500 }}>✓ Active</option>
+                      <option value="inactive" style={{ background: 'var(--surface-primary)', color: 'var(--text-primary)', fontWeight: 500 }}>✕ Inactive</option>
+                    </select>
+                  </td>
+                  <td style={{ color: 'var(--text-secondary)', borderRight: '1px solid #E2E8F0' }}>{timeAgo(user.last_login)}</td>
+                  <td style={{ color: 'var(--text-secondary)', borderRight: '1px solid #E2E8F0' }}>
+                    {user.role === 'student' ? (
+                      user.batch?.graduation_year ? `Batch ${user.batch.graduation_year}` : 'Student'
+                    ) : user.role === 'alumni' ? (
+                      user.current_company || 'Alumni'
                     ) : (
-                      <button
-                        onClick={() => handleToggleActive(user)}
-                        className="btn btn-sm btn-ghost"
-                        title={user.is_active ? 'Deactivate' : 'Activate'}
-                      >
-                        {user.is_active ? (
-                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="1.5"/><path d="M15 9l-6 6M9 9l6 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/></svg>
-                        ) : (
-                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="1.5"/><path d="M9 12l2 2 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
-                        )}
-                      </button>
+                      user.designation || 'Faculty'
                     )}
-                  </div>
-                </td>
-              </tr>
-            ))}
+                  </td>
+                  <td style={{ textAlign: 'center' }}>
+                    <button style={{ background: 'transparent', border: 'none', color: 'var(--text-tertiary)', cursor: 'pointer' }}>
+                      <MoreHorizontal size={16} />
+                    </button>
+                  </td>
+                </tr>
+              )
+            })}
             {filtered.length === 0 && (
               <tr>
-                <td colSpan={7}>
-                  <div className="empty-state">No users match your filters</div>
+                <td colSpan={9} style={{ textAlign: 'center', padding: '40px', color: 'var(--text-tertiary)' }}>
+                  No users match your filters
                 </td>
               </tr>
             )}

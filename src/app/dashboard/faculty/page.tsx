@@ -6,6 +6,7 @@ import { db } from '@/lib/firebase/config'
 import { collection, query, where, orderBy, limit, getDocs, getCountFromServer } from 'firebase/firestore'
 import { Topbar } from '@/components/layout/Topbar'
 import { useAuth } from '@/context/AuthContext'
+import { BookOpen, FileEdit, Calendar, X, Hourglass } from 'lucide-react'
 
 export default function FacultyDashboard() {
   const { profile, user } = useAuth()
@@ -150,7 +151,7 @@ export default function FacultyDashboard() {
               justifyContent: 'center',
               color: 'white'
             }}>
-              {profile?.verification_status === 'rejected' ? '❌' : '⏳'}
+              {profile?.verification_status === 'rejected' ? <X size={20} /> : <Hourglass size={20} />}
             </div>
             <div style={{ flex: 1 }}>
               <h3 style={{ fontSize: '15px', fontWeight: 600, color: profile?.verification_status === 'rejected' ? 'var(--status-error)' : 'var(--text-primary)' }}>
@@ -172,12 +173,12 @@ export default function FacultyDashboard() {
         )}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '12px', marginBottom: '24px' }}>
           {[
-            { label: 'Active courses', value: offerings.length, color: '#185FA5', bg: '#E8F0F9', icon: '📚' },
-            { label: 'Pending grades', value: pendingGrades, color: '#9A6B00', bg: '#FFF8E1', icon: '📝' },
-            { label: "Today's classes", value: todaySlots.length, color: '#0F6E56', bg: '#E7F4F0', icon: '🗓' },
+            { label: 'Active courses', value: offerings.length, color: '#185FA5', bg: '#E8F0F9', icon: <BookOpen size={18} /> },
+            { label: 'Pending grades', value: pendingGrades, color: '#9A6B00', bg: '#FFF8E1', icon: <FileEdit size={18} /> },
+            { label: "Today's classes", value: todaySlots.length, color: '#0F6E56', bg: '#E7F4F0', icon: <Calendar size={18} /> },
           ].map(s => (
             <div key={s.label} className="stat-card">
-              <div className="stat-icon" style={{ background: s.bg, fontSize: '18px' }}>{s.icon}</div>
+              <div className="stat-icon" style={{ background: s.bg, color: s.color, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{s.icon}</div>
               <div className="stat-value" style={{ color: s.color }}>{s.value}</div>
               <div className="stat-label">{s.label}</div>
             </div>

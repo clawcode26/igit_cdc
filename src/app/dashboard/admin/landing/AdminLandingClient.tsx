@@ -324,7 +324,7 @@ export function AdminLandingClient() {
                 <h4 style={{ fontSize: '14px', fontWeight: 600, marginBottom: '12px' }}>Migration Summary</h4>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: '12px' }}>
                   {Object.entries(migrationResult.counts || {}).map(([key, val]) => (
-                    <div key={key} style={{ padding: '10px', background: 'white', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
+                    <div key={key} style={{ padding: '10px', background: 'var(--surface-primary)', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
                       <div style={{ fontSize: '10px', color: 'var(--text-tertiary)', textTransform: 'uppercase' }}>{key.replace(/_/g, ' ')}</div>
                       <div style={{ fontSize: '16px', fontWeight: 700, color: '#0F6E56' }}>{val as number}</div>
                     </div>
@@ -361,9 +361,9 @@ export function AdminLandingClient() {
               
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', marginBottom: '16px' }}>
                 {(heroSettings.logos || []).map((url, idx) => (
-                  <div key={idx} style={{ position: 'relative', width: '60px', height: '60px', borderRadius: '8px', border: '1px solid var(--border-color)', background: '#f8f9fa', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
+                  <div key={idx} style={{ position: 'relative', width: '60px', height: '60px', borderRadius: '8px', border: '1px solid var(--border-color)', background: 'var(--surface-secondary)', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
                     <img src={url} alt="Logo" style={{ maxWidth: '80%', maxHeight: '80%', objectFit: 'contain' }} />
-                    <button onClick={() => removeLogo(idx)} style={{ position: 'absolute', top: '2px', right: '2px', background: 'white', border: '1px solid #ddd', borderRadius: '4px', cursor: 'pointer', padding: '2px', fontSize: '8px' }}>❌</button>
+                    <button onClick={() => removeLogo(idx)} style={{ position: 'absolute', top: '2px', right: '2px', background: 'var(--surface-primary)', border: '1px solid #ddd', borderRadius: '4px', cursor: 'pointer', padding: '2px', fontSize: '8px' }}>❌</button>
                   </div>
                 ))}
                 

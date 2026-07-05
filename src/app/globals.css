@@ -1,6 +1,7 @@
 /* ============================================================
    ANTIGRAVITY DESIGN SYSTEM — CSS Custom Properties
    ============================================================ */
+@tailwind utilities;
 
 :root {
   /* Surfaces */
@@ -190,6 +191,10 @@ body {
   transition: margin-left 150ms ease;
 }
 
+body.sidebar-closed .main-content {
+  margin-left: 0 !important;
+}
+
 .main-content-collapsed {
   margin-left: 0;
 }
@@ -198,6 +203,24 @@ body {
   max-width: 1200px;
   margin: 0 auto;
   padding: 24px;
+}
+
+@media (max-width: 768px) {
+  .content-container {
+    padding: 16px;
+  }
+}
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px;
+}
+
+@media (min-width: 1024px) {
+  .dashboard-grid {
+    grid-template-columns: 1fr 1fr;
+  }
 }
 
 /* ============================================================
@@ -781,7 +804,7 @@ select.form-input {
   left: 0;
   width: 0%;
   height: 3px;
-  background: var(--accent-admin);
+  background: var(--text-primary);
   z-index: 9999;
   transition: width 0.3s ease-out, opacity 0.3s ease;
   pointer-events: none;

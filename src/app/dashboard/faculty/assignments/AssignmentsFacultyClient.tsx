@@ -17,6 +17,7 @@ import { ref, uploadBytes, getDownloadURL } from 'firebase/storage'
 import { Topbar } from '@/components/layout/Topbar'
 import { useAuth } from '@/context/AuthContext'
 import toast from 'react-hot-toast'
+import { Plus, MoreHorizontal, Clock, CheckCircle2, AlertCircle } from 'lucide-react'
 import type { Assignment, Submission } from '@/types'
 
 export function AssignmentsFacultyClient() {
@@ -36,6 +37,8 @@ export function AssignmentsFacultyClient() {
     file: null as File | null
   })
   const [creating, setCreating] = useState(false)
+
+  const [activeTab, setActiveTab] = useState<'Classes' | 'Assignments'>('Classes')
 
   useEffect(() => {
     if (!profile || !user) return
@@ -58,7 +61,17 @@ export function AssignmentsFacultyClient() {
     }
 
     fetchData()
-  }, [user])
+  }, [user, profile])
+
+  async function handleUpdateOffering(offeringId: string, updates: any) {
+    try {
+      await updateDoc(doc(db, 'course_offerings', offeringId), updates)
+      setOfferings(prev => prev.map(o => o.id === offeringId ? { ...o, ...updates } : o))
+      toast.success('Updated successfully')
+    } catch (err) {
+      toast.error('Failed to update')
+    }
+  }
 
   async function handleCreate(e: React.FormEvent) {
     e.preventDefault()
@@ -104,37 +117,183 @@ export function AssignmentsFacultyClient() {
 
   return (
     <>
-      <Topbar title="Manage Assignments" accentColor="#185FA5" />
-      <div className="content-container">
-        <div className="section-row" style={{ marginBottom: '20px' }}>
+      <Topbar title="Manage Assignments & Classes" accentColor="#185FA5" />
+      <div className="content-container" style={{ display: 'flex', flexDirection: 'column', minHeight: 'calc(100vh - 64px)', padding: '24px 32px' }}>
+        <div className="section-row" style={{ marginBottom: '24px', flexShrink: 0 }}>
           <div>
-            <h2 className="section-heading">All Assignments</h2>
-            <p className="secondary-text">{assignments.length} assignments created</p>
+            <h2 className="section-heading">Workspace</h2>
+            <div style={{ display: 'flex', gap: '16px', marginTop: '12px', borderBottom: '1px solid var(--border-color)' }}>
+              <button 
+                onClick={() => setActiveTab('Classes')}
+                style={{ background: 'none', border: 'none', fontSize: '14px', fontWeight: 600, padding: '8px 4px', borderBottom: activeTab === 'Classes' ? '2px solid #185FA5' : '2px solid transparent', color: activeTab === 'Classes' ? '#185FA5' : 'var(--text-tertiary)', cursor: 'pointer' }}
+              >
+                My Assigned Classes
+              </button>
+              <button 
+                onClick={() => setActiveTab('Assignments')}
+                style={{ background: 'none', border: 'none', fontSize: '14px', fontWeight: 600, padding: '8px 4px', borderBottom: activeTab === 'Assignments' ? '2px solid #185FA5' : '2px solid transparent', color: activeTab === 'Assignments' ? '#185FA5' : 'var(--text-tertiary)', cursor: 'pointer' }}
+              >
+                Student Assignments
+              </button>
+            </div>
           </div>
-          <button onClick={() => setShowCreate(true)} className="btn btn-filled" style={{ background: '#185FA5', borderColor: '#185FA5' }}>
-            Create Assignment
-          </button>
+          {activeTab === 'Assignments' && (
+            <button onClick={() => setShowCreate(true)} className="btn btn-filled" style={{ background: '#185FA5', borderColor: '#185FA5', display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <Plus size={16} /> Create Issue
+            </button>
+          )}
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '16px' }}>
-          {assignments.map(a => (
-            <div key={a.id} className="card">
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
-                <h3 style={{ fontSize: '15px', fontWeight: 600 }}>{a.title}</h3>
-                <span className="badge badge-info">{a.course_name}</span>
+        {activeTab === 'Classes' && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            {offerings.length === 0 ? (
+              <div style={{ padding: '40px', textAlign: 'center', color: 'var(--text-tertiary)' }}>No classes assigned to you yet.</div>
+            ) : offerings.map(offering => (
+              <div key={offering.id} className="card" style={{ display: 'flex', flexDirection: 'column', gap: '16px', padding: '20px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                  <div>
+                    <h3 style={{ fontSize: '16px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '4px' }}>{offering.course_name} <span style={{ color: 'var(--text-tertiary)', fontWeight: 500 }}>({offering.course_code})</span></h3>
+                    <p style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>{offering.batch_name} • {offering.semester_name}</p>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                    <select 
+                      className="form-input" 
+                      style={{ padding: '6px 12px', fontSize: '12px', borderRadius: '8px', minWidth: '140px' }}
+                      value={offering.status || 'Assigned'}
+                      onChange={e => handleUpdateOffering(offering.id, { status: e.target.value })}
+                    >
+                      <option value="Unassigned">Unassigned</option>
+                      <option value="Assigned">Assigned</option>
+                      <option value="In Progress">In Progress</option>
+                      <option value="Completed">Completed</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div style={{ display: 'flex', gap: '24px', background: 'var(--surface-secondary)', padding: '16px', borderRadius: '12px' }}>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '8px' }}>Admin Notes:</div>
+                    <div style={{ fontSize: '13px', color: 'var(--text-primary)' }}>{offering.notes || 'No notes provided by admin.'}</div>
+                  </div>
+                  <div style={{ width: '200px' }}>
+                    <div style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '4px' }}>Target Due Date:</div>
+                    <div style={{ fontSize: '13px', fontWeight: 600, color: '#E24B4A', marginBottom: '16px' }}>{offering.due_date ? new Date(offering.due_date).toLocaleDateString() : 'None'}</div>
+                    
+                    <div style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '8px', display: 'flex', justifyContent: 'space-between' }}>
+                      Syllabus Progress: <span>{offering.progress || 0}%</span>
+                    </div>
+                    <input 
+                      type="range" 
+                      min="0" max="100" 
+                      value={offering.progress || 0}
+                      onChange={e => {
+                        const newOfferings = [...offerings];
+                        const idx = newOfferings.findIndex(o => o.id === offering.id);
+                        if(idx !== -1) newOfferings[idx].progress = Number(e.target.value);
+                        setOfferings(newOfferings);
+                      }}
+                      onMouseUp={e => handleUpdateOffering(offering.id, { progress: Number((e.target as HTMLInputElement).value) })}
+                      onTouchEnd={e => handleUpdateOffering(offering.id, { progress: Number((e.target as HTMLInputElement).value) })}
+                      style={{ width: '100%', cursor: 'pointer' }}
+                    />
+                  </div>
+                </div>
               </div>
-              <p style={{ fontSize: '12px', color: 'var(--text-tertiary)', marginBottom: '12px' }}>
-                Due: {new Date(a.due_date).toLocaleDateString()} · Marks: {a.max_marks}
-              </p>
-              <div style={{ display: 'flex', gap: '8px' }}>
-                <Link href={`/dashboard/faculty/assignments/evaluation?id=${a.id}`} className="btn btn-sm btn-outlined" style={{ flex: 1, '--role-accent': '#185FA5' } as React.CSSProperties}>
-                  View Submissions
-                </Link>
+            ))}
+          </div>
+        )}
+
+        {activeTab === 'Assignments' && (
+          <div style={{ 
+            display: 'flex', 
+            gap: '24px', 
+            flex: 1, 
+            overflowX: 'auto', 
+            overflowY: 'hidden',
+            paddingBottom: '16px'
+          }}>
+            {/* Column 1: Active / Open */}
+            <div style={{ display: 'flex', flexDirection: 'column', minWidth: '320px', maxWidth: '320px', background: '#F8FAFC', borderRadius: '12px', border: '1px solid #E2E8F0' }}>
+              <div style={{ padding: '16px', borderBottom: '1px solid #E2E8F0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: '#3B82F6' }} />
+                  <h3 style={{ fontSize: '14px', fontWeight: 600, color: '#334155' }}>TO DO / ACTIVE</h3>
+                </div>
+                <span style={{ fontSize: '12px', background: '#E2E8F0', color: '#64748B', padding: '2px 8px', borderRadius: '12px', fontWeight: 600 }}>
+                  {assignments.filter(a => new Date(a.due_date) >= new Date()).length}
+                </span>
+              </div>
+              <div style={{ padding: '12px', display: 'flex', flexDirection: 'column', gap: '12px', overflowY: 'auto', flex: 1 }}>
+                {assignments.filter(a => new Date(a.due_date) >= new Date()).map(a => (
+                  <div key={a.id} style={{ background: '#FFFFFF', borderRadius: '8px', padding: '16px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)', border: '1px solid #E2E8F0', cursor: 'grab' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
+                      <span style={{ fontSize: '11px', fontWeight: 700, color: '#185FA5', background: '#EFF6FF', padding: '2px 6px', borderRadius: '4px' }}>{a.course_name}</span>
+                      <button style={{ background: 'transparent', border: 'none', color: '#94A3B8', cursor: 'pointer' }}><MoreHorizontal size={14} /></button>
+                    </div>
+                    <h4 style={{ fontSize: '14px', fontWeight: 600, color: '#0F172A', marginBottom: '12px', lineHeight: 1.4 }}>{a.title}</h4>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '16px', paddingTop: '12px', borderTop: '1px solid #F1F5F9' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#64748B', fontSize: '11px', fontWeight: 500 }}>
+                        <Clock size={12} /> {new Date(a.due_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                      </div>
+                      <div className="avatar avatar-sm" style={{ width: '24px', height: '24px', fontSize: '10px' }}>{a.course_name.charAt(0)}</div>
+                    </div>
+                    <Link href={`/dashboard/faculty/assignments/evaluation?id=${a.id}`} style={{ display: 'block', marginTop: '12px', textAlign: 'center', fontSize: '12px', fontWeight: 600, color: '#185FA5', textDecoration: 'none', padding: '6px', background: '#F8FAFC', borderRadius: '6px', border: '1px solid #E2E8F0' }}>
+                      View Details
+                    </Link>
+                  </div>
+                ))}
               </div>
             </div>
-          ))}
-          {assignments.length === 0 && <div className="card" style={{ gridColumn: '1/-1', textAlign: 'center', padding: '40px' }}><p className="secondary-text">No assignments created yet.</p></div>}
-        </div>
+
+            {/* Column 2: Needs Evaluation */}
+            <div style={{ display: 'flex', flexDirection: 'column', minWidth: '320px', maxWidth: '320px', background: '#F8FAFC', borderRadius: '12px', border: '1px solid #E2E8F0' }}>
+              <div style={{ padding: '16px', borderBottom: '1px solid #E2E8F0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: '#F59E0B' }} />
+                  <h3 style={{ fontSize: '14px', fontWeight: 600, color: '#334155' }}>IN REVIEW</h3>
+                </div>
+                <span style={{ fontSize: '12px', background: '#E2E8F0', color: '#64748B', padding: '2px 8px', borderRadius: '12px', fontWeight: 600 }}>
+                  {assignments.filter(a => new Date(a.due_date) < new Date()).length}
+                </span>
+              </div>
+              <div style={{ padding: '12px', display: 'flex', flexDirection: 'column', gap: '12px', overflowY: 'auto', flex: 1 }}>
+                {assignments.filter(a => new Date(a.due_date) < new Date()).map(a => (
+                  <div key={a.id} style={{ background: '#FFFFFF', borderRadius: '8px', padding: '16px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)', border: '1px solid #E2E8F0', cursor: 'grab' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
+                      <span style={{ fontSize: '11px', fontWeight: 700, color: '#D97706', background: '#FEF3C7', padding: '2px 6px', borderRadius: '4px' }}>{a.course_name}</span>
+                      <button style={{ background: 'transparent', border: 'none', color: '#94A3B8', cursor: 'pointer' }}><MoreHorizontal size={14} /></button>
+                    </div>
+                    <h4 style={{ fontSize: '14px', fontWeight: 600, color: '#0F172A', marginBottom: '12px', lineHeight: 1.4 }}>{a.title}</h4>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '16px', paddingTop: '12px', borderTop: '1px solid #F1F5F9' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#EF4444', fontSize: '11px', fontWeight: 600 }}>
+                        <AlertCircle size={12} /> Past Due
+                      </div>
+                      <div className="avatar avatar-sm" style={{ width: '24px', height: '24px', fontSize: '10px' }}>{a.course_name.charAt(0)}</div>
+                    </div>
+                    <Link href={`/dashboard/faculty/assignments/evaluation?id=${a.id}`} style={{ display: 'block', marginTop: '12px', textAlign: 'center', fontSize: '12px', fontWeight: 600, color: '#D97706', textDecoration: 'none', padding: '6px', background: '#FFFBEB', borderRadius: '6px', border: '1px solid #FDE68A' }}>
+                      Evaluate Submissions
+                    </Link>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Column 3: Completed */}
+            <div style={{ display: 'flex', flexDirection: 'column', minWidth: '320px', maxWidth: '320px', background: '#F8FAFC', borderRadius: '12px', border: '1px dashed #CBD5E1', opacity: 0.7 }}>
+              <div style={{ padding: '16px', borderBottom: '1px solid #E2E8F0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: '#10B981' }} />
+                  <h3 style={{ fontSize: '14px', fontWeight: 600, color: '#334155' }}>DONE</h3>
+                </div>
+                <span style={{ fontSize: '12px', background: '#E2E8F0', color: '#64748B', padding: '2px 8px', borderRadius: '12px', fontWeight: 600 }}>0</span>
+              </div>
+              <div style={{ padding: '24px', textAlign: 'center', color: '#94A3B8', fontSize: '13px' }}>
+                <CheckCircle2 size={32} style={{ margin: '0 auto 12px', opacity: 0.5 }} />
+                Graded assignments will appear here
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       {showCreate && (

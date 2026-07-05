@@ -17,6 +17,9 @@ export const metadata: Metadata = {
     template: '%s | Civil Dept IGIT'
   },
   description: 'Official portal for Civil Engineering Department, Indira Gandhi Institute of Technology (IGIT), Sarang.',
+  icons: {
+    icon: '/igit-logo.png',
+  },
 }
 
 import { Suspense } from 'react'
