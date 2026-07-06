@@ -125,7 +125,7 @@ export default function AnnouncementsPage() {
             Latest <span style={{ color: T.accent, WebkitTextFillColor: 'initial' }}>Notices</span>
           </h1>
           <p style={{ fontSize: isMobile ? '16px' : '20px', color: T.muted, maxWidth: '600px', lineHeight: 1.6 }}>
-            Stay informed with the latest updates, academic notices, and official news from the Civil Engineering Department.
+            Stay informed with the latest updates, academic notices, and official news from the Career Development Centre.
           </p>
         </FadeUp>
       </section>

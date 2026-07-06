@@ -165,7 +165,7 @@ export default function VerifyPage() {
                       <div style={{ width: '48px', height: '48px', borderRadius: '8px', background: 'transparent', border: `1px solid ${T.border}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '24px' }}>✅</div>
                       <div>
                         <div style={{ fontSize: '20px', fontWeight: 900, color: T.text }}>Authentic Document Found</div>
-                        <div style={{ fontSize: '13px', color: '#16a34a', fontWeight: 700 }}>VERIFIED BY CIVIL DEPT. IGIT SARANG</div>
+                        <div style={{ fontSize: '13px', color: '#16a34a', fontWeight: 700 }}>VERIFIED BY CDC IGIT SARANG</div>
                       </div>
                     </div>
 

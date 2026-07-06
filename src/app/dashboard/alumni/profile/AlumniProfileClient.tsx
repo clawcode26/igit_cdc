@@ -133,7 +133,7 @@ export function AlumniProfileClient() {
               <Field label="Full Name"        field="full_name"        placeholder="Your full name" />
               <Field label="Graduation Year"  field="graduation_year"  type="number" placeholder="e.g. 2021" />
               <Field label="Current Company"  field="current_company"  placeholder="e.g. Infosys" />
-              <Field label="Job Title"        field="current_job_title" placeholder="e.g. Civil Engineer" />
+              <Field label="Job Title"        field="current_job_title" placeholder="e.g. CDC Executive" />
               <Field label="Phone"            field="phone"            placeholder="+91 XXXXX XXXXX" />
               <Field label="City / Location"  field="city"             placeholder="e.g. Bhubaneswar" />
               <div style={{ gridColumn: '1 / -1' }}>

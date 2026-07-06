@@ -28,7 +28,7 @@ export function AdminLandingClient() {
 
   // Hero & Global State
   const [heroSettings, setHeroSettings] = useState({
-    title: 'Civil Engineering Department, IGIT Sarang',
+    title: 'Career Development Centre, IGIT Sarang',
     subtitle: 'A unified platform for students, faculty, and alumni to collaborate, learn, and grow together.',
     hod_quote: 'Our department is dedicated to fostering an environment of technical excellence and creative innovation.',
     hod_name: 'Dr. John Smith',
@@ -498,7 +498,7 @@ export function AdminLandingClient() {
                     </div>
                     <div className="form-group">
                         <label className="form-label">Location / Subtitle</label>
-                        <input name="description" className="form-input" placeholder="e.g. Civil Engineering, IGIT SARANG" />
+                        <input name="description" className="form-input" placeholder="e.g. Career Development Centre, IGIT SARANG" />
                     </div>
                     <div className="form-group">
                         <label className="form-label">Upload File</label>

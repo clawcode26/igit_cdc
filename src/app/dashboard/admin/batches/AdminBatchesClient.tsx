@@ -173,6 +173,19 @@ export function AdminBatchesClient() {
     }
   }
 
+  async function handleUpdateWhatsappGroup(batchId: string, groupId: string) {
+    try {
+        await updateDoc(doc(db, 'batches', batchId), {
+            whatsappGroupId: groupId,
+            updated_at: new Date().toISOString()
+        })
+        setBatches(prev => prev.map(b => b.id === batchId ? { ...b, whatsappGroupId: groupId } : b))
+        toast.success(`WhatsApp Group ID updated`)
+    } catch (e) {
+        toast.error('Failed to update WhatsApp Group ID')
+    }
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setCreating(true)
@@ -180,7 +193,7 @@ export function AdminBatchesClient() {
       const baseData = {
         graduation_year: form.graduation_year,
         dept_id: 'CE',
-        dept_name: 'Civil Engineering',
+        dept_name: 'Career Development Centre',
         current_semester_id: form.current_semester_id,
         created_at: new Date().toISOString()
       }
@@ -236,6 +249,7 @@ export function AdminBatchesClient() {
                 <th>Grad. Year</th>
                 <th>Section</th>
                 <th>Current Semester</th>
+                <th>WhatsApp Group ID</th>
                 <th>Actions</th>
               </tr>
             </thead>
@@ -257,6 +271,16 @@ export function AdminBatchesClient() {
                             <option key={s.id} value={s.id}>{s.name}</option>
                         ))}
                     </select>
+                  </td>
+                  <td>
+                    <input 
+                        type="text"
+                        className="form-input"
+                        style={{ padding: '4px 8px', fontSize: '11px', height: 'auto', minWidth: '160px', fontFamily: 'monospace' }}
+                        placeholder="ID or Invite Link"
+                        defaultValue={b.whatsappGroupId || ''}
+                        onBlur={(e) => handleUpdateWhatsappGroup(b.id, e.target.value)}
+                    />
                   </td>
                   <td>
                     <div style={{ display: 'flex', gap: '8px' }}>
@@ -344,7 +368,7 @@ export function AdminBatchesClient() {
             <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
               <div className="form-group">
                 <label className="form-label">Batch Group Header</label>
-                <input className="form-input" required value={form.name} onChange={e => setForm(p => ({ ...p, name: e.target.value }))} placeholder="e.g. 2021-25 Civil Engineering" />
+                <input className="form-input" required value={form.name} onChange={e => setForm(p => ({ ...p, name: e.target.value }))} placeholder="e.g. 2021-25 Career Development Centre" />
               </div>
 
               <div style={{ 

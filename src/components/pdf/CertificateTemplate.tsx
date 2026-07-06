@@ -216,7 +216,7 @@ export const CertificateTemplate = ({ request = {} }: CertProps) => {
         <View style={styles.headerContainer}>
           <Image src={logoUrl} style={styles.logo} />
           <View style={styles.headerTextContainer}>
-            <Text style={styles.deptName}>Department of Civil Engineering</Text>
+            <Text style={styles.deptName}>Career Development Centre</Text>
             <Text style={styles.instName}>Indira Gandhi Institute of Technology, Sarang</Text>
           </View>
         </View>
@@ -240,7 +240,7 @@ export const CertificateTemplate = ({ request = {} }: CertProps) => {
           </View>
           <View style={styles.infoRow}>
             <Text style={styles.infoLabel}>Degree Program:</Text>
-            <Text style={styles.infoValue}>B.Tech, Civil Engineering</Text>
+            <Text style={styles.infoValue}>B.Tech, Career Development Centre</Text>
           </View>
           <View style={styles.infoRow}>
             <Text style={styles.infoLabel}>Application Status:</Text>
@@ -281,7 +281,7 @@ export const CertificateTemplate = ({ request = {} }: CertProps) => {
           <View style={{ alignItems: 'center' }}>
             <View style={styles.stampContainer}>
               <Text style={styles.stampText}>DIGITALLY SIGNED</Text>
-              <Text style={styles.stampSub}>DEPT. OF CIVIL ENGG</Text>
+              <Text style={styles.stampSub}>CAREER DEVELOPMENT CENTRE</Text>
               <Text style={styles.stampSub}>IGIT SARANG</Text>
               <Text style={{ ...styles.stampSub, fontSize: 6, marginTop: 4 }}>ID: {reqId.toUpperCase()}</Text>
               <Text style={{ ...styles.stampSub, fontSize: 6 }}>DATE: {dateFormatted}</Text>

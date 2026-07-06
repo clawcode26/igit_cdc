@@ -44,9 +44,9 @@ export default function GalleryPage() {
   }, [])
 
   const activeGallery = gallery.length > 0 ? gallery : [
-    { id: 'p1', image_url: 'https://images.unsplash.com/photo-1590159491612-da7d25e0c06a?q=80&w=2000&auto=format&fit=crop', title: 'Department Entrance', description: 'Civil Engineering, IGIT SARANG', created_at: '' },
-    { id: 'p2', image_url: 'https://images.unsplash.com/photo-1541888946425-d81bb19480c5?q=80&w=2000&auto=format&fit=crop', title: 'Construction Lab', description: 'Civil Engineering, IGIT SARANG', created_at: '' },
-    { id: 'p3', image_url: 'https://plus.unsplash.com/premium_photo-1661962283999-906969543884?q=80&w=2000&auto=format&fit=crop', title: 'Surveying Session', description: 'Civil Engineering, IGIT SARANG', created_at: '' },
+    { id: 'p1', image_url: 'https://images.unsplash.com/photo-1590159491612-da7d25e0c06a?q=80&w=2000&auto=format&fit=crop', title: 'Department Entrance', description: 'Career Development Centre, IGIT SARANG', created_at: '' },
+    { id: 'p2', image_url: 'https://images.unsplash.com/photo-1541888946425-d81bb19480c5?q=80&w=2000&auto=format&fit=crop', title: 'Construction Lab', description: 'Career Development Centre, IGIT SARANG', created_at: '' },
+    { id: 'p3', image_url: 'https://plus.unsplash.com/premium_photo-1661962283999-906969543884?q=80&w=2000&auto=format&fit=crop', title: 'Surveying Session', description: 'Career Development Centre, IGIT SARANG', created_at: '' },
   ]
 
   const [isMobile, setIsMobile] = useState(false)
@@ -65,7 +65,7 @@ export default function GalleryPage() {
         <FadeUp>
           <div style={{ marginBottom: '40px' }}>
             <h1 style={{ fontSize: isMobile ? '32px' : '48px', fontWeight: 900, marginBottom: '16px', color: T.text }}>Gallery</h1>
-            <p style={{ fontSize: isMobile ? '16px' : '18px', color: T.muted, maxWidth: '600px', lineHeight: 1.6 }}>Moments, events, and memories from the Department of Civil Engineering.</p>
+            <p style={{ fontSize: isMobile ? '16px' : '18px', color: T.muted, maxWidth: '600px', lineHeight: 1.6 }}>Moments, events, and memories from the Career Development Centre.</p>
           </div>
         </FadeUp>
 
@@ -94,7 +94,7 @@ export default function GalleryPage() {
                   <div style={{ padding: '20px' }}>
                     <h3 style={{ fontSize: '18px', fontWeight: 800, color: T.text, marginBottom: '8px' }}>{photo.title || 'Departmental Highlight'}</h3>
                     <div style={{ fontSize: '14px', color: T.muted, display: 'flex', alignItems: 'center', gap: '6px', fontWeight: 500 }}>
-                      <span>📍</span> {photo.description || 'Civil Engineering, IGIT SARANG'}
+                      <span>📍</span> {photo.description || 'Career Development Centre, IGIT SARANG'}
                     </div>
                   </div>
                 </div>

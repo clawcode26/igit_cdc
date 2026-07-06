@@ -192,7 +192,7 @@ export function AlumniJobsClient() {
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
               {[
-                { label: 'Position Title *', key: 'title', placeholder: 'e.g. Civil Site Engineer' },
+                { label: 'Position Title *', key: 'title', placeholder: 'e.g. CDC Executive' },
                 { label: 'Company Name *',   key: 'company', placeholder: 'e.g. Larsen & Toubro' },
                 { label: 'Location',         key: 'location', placeholder: 'e.g. Remote / Bhubaneswar' },
                 { label: 'Salary / Stipend', key: 'salary', placeholder: 'e.g. ₹6 LPA / ₹15,000/mo' },

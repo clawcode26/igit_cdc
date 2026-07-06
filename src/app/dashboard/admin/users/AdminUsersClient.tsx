@@ -36,7 +36,7 @@ export function AdminUsersClient({ users: initialUsers, departments, batches }: 
 
   // Create user form state
   const [newUser, setNewUser] = useState({
-    full_name: '', email: '', role: 'student' as UserRole,
+    full_name: '', email: '', phone: '', role: 'student' as UserRole,
     dept_id: 'CE', batch_id: '', roll_no: '', registration_no: '', designation: '',
   })
   const [creating, setCreating] = useState(false)
@@ -66,6 +66,9 @@ export function AdminUsersClient({ users: initialUsers, departments, batches }: 
       const tempId = Math.random().toString(36).substring(2, 15)
       const userRef = doc(db, 'profiles', tempId)
 
+      const batchObj = batches.find(b => b.id === newUser.batch_id);
+      const gradYear = batchObj ? batchObj.graduation_year : null;
+
       const profileData: Profile = {
         id: tempId,
         full_name: newUser.full_name,
@@ -83,11 +86,11 @@ export function AdminUsersClient({ users: initialUsers, departments, batches }: 
         must_change_password: true,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
-        phone: null,
+        phone: newUser.phone || null,
         avatar_url: null,
         photo_url: null,
         last_login: null,
-        graduation_year: null
+        graduation_year: gradYear
       }
 
       await setDoc(userRef, profileData)
@@ -105,7 +108,7 @@ export function AdminUsersClient({ users: initialUsers, departments, batches }: 
 
       toast.success(`Profile created! Now ask ${newUser.full_name} to Sign Up using ${newUser.email}`)
       setShowCreate(false)
-      setNewUser({ full_name: '', email: '', role: 'student', dept_id: '', batch_id: '', roll_no: '', registration_no: '', designation: '' })
+      setNewUser({ full_name: '', email: '', phone: '', role: 'student', dept_id: '', batch_id: '', roll_no: '', registration_no: '', designation: '' })
     } catch (err: any) {
       toast.error(err.message)
     } finally {
@@ -208,13 +211,13 @@ export function AdminUsersClient({ users: initialUsers, departments, batches }: 
       <div style={{ display: 'flex', borderBottom: '1px solid var(--border-color)', marginBottom: '24px', gap: '24px' }}>
         <button 
           onClick={() => setView('all')} 
-          style={{ padding: '12px 0 10px', fontSize: '14px', fontWeight: 600, borderBottom: view === 'all' ? '2px solid #E24B4A' : 'none', color: view === 'all' ? 'var(--text-primary)' : 'var(--text-tertiary)', background: 'none', border: 'none', cursor: 'pointer' }}
+          style={{ padding: '12px 0 10px', fontSize: '14px', fontWeight: 600, borderBottom: view === 'all' ? '2px solid #E24B4A' : 'none', color: view === 'all' ? 'var(--text-primary)' : 'var(--text-tertiary)', background: 'none', borderTop: 'none', borderLeft: 'none', borderRight: 'none', cursor: 'pointer' }}
         >
           All Accounts
         </button>
         <button 
           onClick={() => setView('pending')} 
-          style={{ padding: '12px 0 10px', fontSize: '14px', fontWeight: 600, borderBottom: view === 'pending' ? '2px solid #E24B4A' : 'none', color: view === 'pending' ? 'var(--text-primary)' : 'var(--text-tertiary)', background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}
+          style={{ padding: '12px 0 10px', fontSize: '14px', fontWeight: 600, borderBottom: view === 'pending' ? '2px solid #E24B4A' : 'none', color: view === 'pending' ? 'var(--text-primary)' : 'var(--text-tertiary)', background: 'none', borderTop: 'none', borderLeft: 'none', borderRight: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}
         >
           Pending Verification
           {users.filter(u => u.verification_status === 'pending').length > 0 && (
@@ -335,34 +338,69 @@ export function AdminUsersClient({ users: initialUsers, departments, batches }: 
                     </div>
                   </td>
                   <td style={{ borderRight: '1px solid #E2E8F0' }}>
-                    <select 
-                      value={user.is_active ? 'active' : 'inactive'}
-                      onChange={(e) => {
-                        const newActive = e.target.value === 'active'
-                        if (user.is_active !== newActive) {
-                          handleToggleActive(user)
-                        }
-                      }}
-                      style={{ 
-                        padding: '4px 28px 4px 10px', 
-                        borderRadius: '12px', 
-                        fontSize: '11px', 
-                        fontWeight: 600,
-                        backgroundColor: user.is_active ? '#0F6E56' : '#E24B4A',
-                        color: '#FFFFFF',
-                        border: 'none',
-                        cursor: 'pointer',
-                        outline: 'none',
-                        appearance: 'none',
-                        WebkitAppearance: 'none',
-                        backgroundImage: `url('data:image/svg+xml;utf8,<svg fill="%23FFFFFF" height="14" viewBox="0 0 24 24" width="14" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>')`,
-                        backgroundRepeat: 'no-repeat',
-                        backgroundPosition: 'right 6px center'
-                      }}
-                    >
-                      <option value="active" style={{ background: 'var(--surface-primary)', color: 'var(--text-primary)', fontWeight: 500 }}>✓ Active</option>
-                      <option value="inactive" style={{ background: 'var(--surface-primary)', color: 'var(--text-primary)', fontWeight: 500 }}>✕ Inactive</option>
-                    </select>
+                    {user.verification_status === 'pending' ? (
+                      <div style={{ display: 'flex', gap: '6px' }}>
+                        <button 
+                          onClick={() => handleVerify(user, 'verified')}
+                          style={{ 
+                            background: '#0F6E56', 
+                            color: 'white', 
+                            border: 'none', 
+                            borderRadius: '8px', 
+                            padding: '4px 8px', 
+                            fontSize: '11px', 
+                            fontWeight: 600, 
+                            cursor: 'pointer' 
+                          }}
+                        >
+                          Approve
+                        </button>
+                        <button 
+                          onClick={() => handleVerify(user, 'rejected')}
+                          style={{ 
+                            background: '#E24B4A', 
+                            color: 'white', 
+                            border: 'none', 
+                            borderRadius: '8px', 
+                            padding: '4px 8px', 
+                            fontSize: '11px', 
+                            fontWeight: 600, 
+                            cursor: 'pointer' 
+                          }}
+                        >
+                          Reject
+                        </button>
+                      </div>
+                    ) : (
+                      <select 
+                        value={user.is_active ? 'active' : 'inactive'}
+                        onChange={(e) => {
+                          const newActive = e.target.value === 'active'
+                          if (user.is_active !== newActive) {
+                            handleToggleActive(user)
+                          }
+                        }}
+                        style={{ 
+                          padding: '4px 28px 4px 10px', 
+                          borderRadius: '12px', 
+                          fontSize: '11px', 
+                          fontWeight: 600,
+                          backgroundColor: user.is_active ? '#0F6E56' : '#E24B4A',
+                          color: '#FFFFFF',
+                          border: 'none',
+                          cursor: 'pointer',
+                          outline: 'none',
+                          appearance: 'none',
+                          WebkitAppearance: 'none',
+                          backgroundImage: `url('data:image/svg+xml;utf8,<svg fill="%23FFFFFF" height="14" viewBox="0 0 24 24" width="14" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>')`,
+                          backgroundRepeat: 'no-repeat',
+                          backgroundPosition: 'right 6px center'
+                        }}
+                      >
+                        <option value="active" style={{ background: 'var(--surface-primary)', color: 'var(--text-primary)', fontWeight: 500 }}>✓ Active</option>
+                        <option value="inactive" style={{ background: 'var(--surface-primary)', color: 'var(--text-primary)', fontWeight: 500 }}>✕ Inactive</option>
+                      </select>
+                    )}
                   </td>
                   <td style={{ color: 'var(--text-secondary)', borderRight: '1px solid #E2E8F0' }}>{timeAgo(user.last_login)}</td>
                   <td style={{ color: 'var(--text-secondary)', borderRight: '1px solid #E2E8F0' }}>
@@ -420,6 +458,10 @@ export function AdminUsersClient({ users: initialUsers, departments, batches }: 
               <div className="form-group">
                 <label className="form-label">Email address</label>
                 <input type="email" className="form-input" required value={newUser.email} onChange={e => setNewUser(p => ({ ...p, email: e.target.value }))} />
+              </div>
+              <div className="form-group">
+                <label className="form-label">WhatsApp / Mobile Number</label>
+                <input type="tel" className="form-input" required value={newUser.phone} onChange={e => setNewUser(p => ({ ...p, phone: e.target.value }))} placeholder="e.g. 9876543210" />
               </div>
               <div className="form-group">
                 <label className="form-label">Role</label>

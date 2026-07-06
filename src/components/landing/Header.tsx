@@ -54,6 +54,7 @@ export function Header({ settings = {} }: { settings?: any }) {
   const navItems = [
     { label: 'Home', href: '/' },
     { label: 'Faculty', href: '/#faculty' },
+    { label: 'Resume Builder', href: '/resume' },
     { label: 'Gallery', href: '/gallery' },
     { label: 'Storage', href: '/storage' },
     { label: 'Verification', href: '/verify' },
@@ -83,7 +84,7 @@ export function Header({ settings = {} }: { settings?: any }) {
             <img src={(settings?.logos && settings.logos[0]) || "/igit-logo.png"} alt="IGIT Logo" style={{ width: '100%', height: '100%', objectFit: 'contain' }} onError={(e: any) => { e.target.src = 'https://ui-avatars.com/api/?name=IGIT&background=0F172A&color=fff' }} />
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', textAlign: 'left' }}>
-            <h1 style={{ fontSize: isMobile ? '20px' : '32px', fontWeight: 900, color: isDark ? '#F8FAFC' : '#0F172A', letterSpacing: '-0.03em', margin: '0 0 4px 0' }}>Department of Civil Engineering</h1>
+            <h1 style={{ fontSize: isMobile ? '20px' : '32px', fontWeight: 900, color: isDark ? '#F8FAFC' : '#0F172A', letterSpacing: '-0.03em', margin: '0 0 4px 0' }}>Career Development Centre</h1>
             <h2 style={{ fontSize: isMobile ? '13px' : '16px', fontWeight: 500, color: isDark ? '#94A3B8' : '#475569', margin: '0 0 4px 0', letterSpacing: '-0.01em' }}>Indira Gandhi Institute of Technology, Sarang</h2>
             <p style={{ fontSize: isMobile ? '11px' : '13px', fontWeight: 500, color: isDark ? '#64748B' : '#94A3B8', margin: 0 }}>An Autonomous Institute of Govt. of Odisha</p>
           </div>

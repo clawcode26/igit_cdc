@@ -41,6 +41,17 @@ const getTheme = (isDark: boolean) => ({
   accentDark: isDark ? '#E5E7EB' : '#000000',
 })
 
+const DEPARTMENTS = [
+  { id: 'CE', name: 'Civil Engineering' },
+  { id: 'ME', name: 'Mechanical Engineering' },
+  { id: 'CSE', name: 'Computer Science Engineering' },
+  { id: 'MME', name: 'Metallurgical & Materials Engineering' },
+  { id: 'CH', name: 'Chemical Engineering' },
+  { id: 'ETC', name: 'Electronics & Telecommunication Engineering' },
+  { id: 'EE', name: 'Electrical Engineering' },
+  { id: 'PE', name: 'Production Engineering' },
+];
+
 const FadeUp = ({ children, delay = 0 }: { children: React.ReactNode; delay?: number }) => (
   <motion.div
     initial={{ opacity: 0, y: 20 }}
@@ -56,9 +67,13 @@ function LoginContent() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [fullName, setFullName] = useState('')
+  const [phone, setPhone] = useState('')
   const [loading, setLoading] = useState(false)
   const [mode, setMode] = useState<'login' | 'signup' | 'reset'>('login')
   const [role, setRole] = useState<UserRole>('student')
+  const [batchId, setBatchId] = useState('')
+  const [batches, setBatches] = useState<any[]>([])
+  const [deptId, setDeptId] = useState('')
   const [rollNo, setRollNo] = useState('')
   const [regNo, setRegNo] = useState('')
   const [resetSent, setResetSent] = useState(false)
@@ -71,6 +86,15 @@ function LoginContent() {
     setIsDark(window.matchMedia('(prefers-color-scheme: dark)').matches)
     const error = searchParams.get('error')
     if (error) toast.error(decodeURIComponent(error))
+    
+    // Fetch batches for signup dropdown
+    import('firebase/firestore').then(({ collection, getDocs, query }) => {
+      getDocs(query(collection(db, 'batches'))).then(snap => {
+        const fetchedBatches = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        fetchedBatches.sort((a: any, b: any) => (b.graduation_year || 0) - (a.graduation_year || 0));
+        setBatches(fetchedBatches);
+      }).catch(console.error)
+    })
   }, [searchParams])
 
   async function handleLogin(e: React.FormEvent) {
@@ -98,6 +122,9 @@ function LoginContent() {
       const q = query(collection(db, 'profiles'), where('email', '==', email))
       const querySnapshot = await getDocs(q)
       
+      const selectedBatch = batches.find(b => b.id === batchId);
+      const gradYear = selectedBatch ? selectedBatch.graduation_year : null;
+
       if (!querySnapshot.empty) {
         const existingDoc = querySnapshot.docs[0]
         const profileData = existingDoc.data()
@@ -106,8 +133,13 @@ function LoginContent() {
           ...profileData,
           id: user.uid,
           full_name: fullName || profileData.full_name,
+          phone: phone || profileData.phone,
+          batch_id: role === 'student' ? (batchId || profileData.batch_id) : profileData.batch_id,
+          graduation_year: role === 'student' ? (gradYear || profileData.graduation_year) : profileData.graduation_year,
           roll_no: role === 'student' ? (rollNo || profileData.roll_no) : profileData.roll_no,
           registration_no: role === 'student' ? (regNo || profileData.registration_no) : profileData.registration_no,
+          dept_id: role === 'student' ? (deptId || profileData.dept_id) : profileData.dept_id,
+          dept_name: role === 'student' ? (DEPARTMENTS.find(d => d.id === deptId)?.name || profileData.dept_name) : profileData.dept_name,
           updated_at: new Date().toISOString(),
         })
       } else {
@@ -121,11 +153,13 @@ function LoginContent() {
           is_active: false,
           verification_status: 'pending',
           must_change_password: false,
-          dept_id: 'CE',
-          batch_id: null,
+          dept_id: role === 'student' ? deptId : null,
+          dept_name: role === 'student' ? DEPARTMENTS.find(d => d.id === deptId)?.name : null,
+          batch_id: role === 'student' ? batchId : null,
+          graduation_year: role === 'student' ? gradYear : null,
+          phone: phone || null,
           roll_no: role === 'student' ? rollNo : null,
           registration_no: role === 'student' ? regNo : null,
-          graduation_year: null,
           designation: null
         })
       }
@@ -172,22 +206,20 @@ function LoginContent() {
         </Link>
       </div>
 
-      <div style={{ width: '100%', maxWidth: '440px', position: 'relative', zIndex: 1 }}>
+      <div style={{ width: '100%', maxWidth: mode === 'signup' ? '820px' : '440px', position: 'relative', zIndex: 1, transition: 'max-width 0.3s cubic-bezier(0.22, 1, 0.36, 1)' }}>
         
         {/* Header Badge */}
         <FadeUp>
           <div style={{ textAlign: 'center', marginBottom: '40px' }}>
             <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
-              <span style={{ background: T.faint, border: `1px solid ${T.border}`, color: T.text, padding: '6px 16px', borderRadius: '99px', fontSize: '12px', fontWeight: 600 }}>
-                🎓 CIVIL ENGINEERING · IGIT
+              <span style={{ display: 'flex', alignItems: 'center', gap: '8px', background: T.faint, border: `1px solid ${T.border}`, color: T.text, padding: '6px 16px', borderRadius: '99px', fontSize: '12px', fontWeight: 600 }}>
+                <img src="/igit-logo.png" alt="IGIT Logo" style={{ width: '16px', height: '16px', objectFit: 'contain' }} />
+                CAREER DEVELOPMENT CENTRE · IGIT
               </span>
             </div>
             <h1 style={{ fontSize: '32px', fontWeight: 900, marginBottom: '8px', letterSpacing: '-1px' }}>
-              {mode === 'login' ? 'Welcome Back' : mode === 'signup' ? 'Join Community' : 'Reset Access'}
+              {mode === 'login' ? 'Welcome Back' : mode === 'signup' ? 'Create Account' : 'Reset Access'}
             </h1>
-            <p style={{ color: T.muted, fontSize: '15px' }}>
-              Official access point for departmental resources.
-            </p>
           </div>
         </FadeUp>
 
@@ -256,36 +288,112 @@ function LoginContent() {
                   animate={{ opacity: 1, x: 0 }} 
                   exit={{ opacity: 0, x: -10 }}
                   onSubmit={handleSignUp} 
-                  style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}
+                  style={{ display: 'grid', gridTemplateColumns: '1fr 1px 1fr', gap: '36px', alignItems: 'start' }}
                 >
-                  <InputField label="Full Name" icon={<User size={18} />} placeholder="John Doe" value={fullName} onChange={setFullName} T={T} isDark={isDark} />
-                  <InputField label="Email Address" icon={<Mail size={18} />} placeholder="name@igit.ac.in" value={email} onChange={setEmail} type="email" T={T} isDark={isDark} />
-                  
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                    <label style={{ fontSize: '13px', fontWeight: 700, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Member Type</label>
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px' }}>
-                      {[
-                        { id: 'student', label: 'Student', icon: <GraduationCap size={16} /> },
-                        { id: 'faculty', label: 'Faculty', icon: <Briefcase size={16} /> },
-                        { id: 'alumni', label: 'Alumni', icon: <History size={16} /> }
-                      ].map(r => (
-                        <button key={r.id} type="button" onClick={() => setRole(r.id as UserRole)} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', padding: '12px 6px', borderRadius: '12px', border: `1.5px solid ${role === r.id ? T.accent : T.border}`, background: role === r.id ? (isDark ? 'rgba(185,255,102,0.1)' : 'rgba(185,255,102,0.05)') : 'transparent', color: role === r.id ? T.text : T.muted, cursor: 'pointer', transition: 'all 0.2s' }}>
-                          {r.icon}
-                          <span style={{ fontSize: '11px', fontWeight: 700 }}>{r.label}</span>
-                        </button>
-                      ))}
+                  {/* Left Column: Basic Details & Member Type */}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
+                    <InputField label="Full Name" icon={<User size={18} />} placeholder="John Doe" value={fullName} onChange={setFullName} T={T} isDark={isDark} />
+                    <InputField label="Email Address" icon={<Mail size={18} />} placeholder="name@igit.ac.in" value={email} onChange={setEmail} type="email" T={T} isDark={isDark} />
+                    
+                    <div className="form-group">
+                      <label style={{ fontSize: '13px', fontWeight: 700, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '8px', display: 'block' }}>WhatsApp / Mobile Number</label>
+                      <input
+                        type="tel"
+                        placeholder="e.g. 9876543210"
+                        value={phone}
+                        onChange={(e) => setPhone(e.target.value)}
+                        required
+                        style={{
+                          width: '100%',
+                          padding: '14px 16px',
+                          background: T.faint,
+                          border: `1.5px solid ${T.border}`,
+                          borderRadius: '14px',
+                          color: T.text,
+                          fontSize: '15px',
+                          fontWeight: 500,
+                          outline: 'none',
+                          transition: 'all 0.3s',
+                        }}
+                        onFocus={(e) => {
+                          e.currentTarget.style.border = `1.5px solid ${T.accent}`
+                          e.currentTarget.style.background = isDark ? 'rgba(255,255,255,0.06)' : 'white'
+                        }}
+                        onBlur={(e) => {
+                          e.currentTarget.style.border = `1.5px solid ${T.border}`
+                          e.currentTarget.style.background = T.faint
+                        }}
+                      />
+                    </div>
+
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                      <label style={{ fontSize: '13px', fontWeight: 700, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Member Type</label>
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px' }}>
+                        {[
+                          { id: 'student', label: 'Student', icon: <GraduationCap size={16} /> },
+                          { id: 'faculty', label: 'Faculty', icon: <Briefcase size={16} /> },
+                          { id: 'alumni', label: 'Alumni', icon: <History size={16} /> }
+                        ].map(r => (
+                          <button key={r.id} type="button" onClick={() => setRole(r.id as UserRole)} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', padding: '12px 6px', borderRadius: '12px', border: `1.5px solid ${role === r.id ? T.accent : T.border}`, background: role === r.id ? (isDark ? 'rgba(185,255,102,0.1)' : 'rgba(185,255,102,0.05)') : 'transparent', color: role === r.id ? T.text : T.muted, cursor: 'pointer', transition: 'all 0.2s' }}>
+                            {r.icon}
+                            <span style={{ fontSize: '11px', fontWeight: 700 }}>{r.label}</span>
+                          </button>
+                        ))}
+                      </div>
                     </div>
                   </div>
 
-                  {role === 'student' && (
-                    <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-                      <InputField label="Roll No" value={rollNo} onChange={setRollNo} T={T} isDark={isDark} />
-                      <InputField label="Reg No" value={regNo} onChange={setRegNo} T={T} isDark={isDark} />
-                    </motion.div>
-                  )}
+                  {/* Vertical Divider */}
+                  <div style={{ width: '1px', backgroundColor: T.border, alignSelf: 'stretch', minHeight: '300px' }} />
 
-                  <InputField label="Create Password" icon={<Lock size={18} />} placeholder="Min 8 chars" value={password} onChange={setPassword} type="password" T={T} isDark={isDark} />
-                  <PrimaryButton loading={loading} text="Create Account" T={T} isDark={isDark} />
+                  {/* Right Column: Academic Details & Password */}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
+                    {role === 'student' && (
+                      <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '12px' }}>
+                        <div className="form-group">
+                          <label style={{ fontSize: '13px', fontWeight: 700, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '8px', display: 'block' }}>Department</label>
+                          <select
+                            required
+                            value={deptId}
+                            onChange={(e) => setDeptId(e.target.value)}
+                            style={{
+                              width: '100%', padding: '14px 16px', background: T.faint, border: `1.5px solid ${T.border}`,
+                              borderRadius: '14px', color: T.text, fontSize: '15px', fontWeight: 500, outline: 'none'
+                            }}
+                          >
+                            <option value="" style={{ background: T.background, color: T.text }}>Select Department...</option>
+                            {DEPARTMENTS.map(d => (
+                              <option key={d.id} value={d.id} style={{ background: T.background, color: T.text }}>{d.name}</option>
+                            ))}
+                          </select>
+                        </div>
+                        <div className="form-group">
+                          <label style={{ fontSize: '13px', fontWeight: 700, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '8px', display: 'block' }}>Batch & Section</label>
+                          <select
+                            required
+                            value={batchId}
+                            onChange={(e) => setBatchId(e.target.value)}
+                            style={{
+                              width: '100%', padding: '14px 16px', background: T.faint, border: `1.5px solid ${T.border}`,
+                              borderRadius: '14px', color: T.text, fontSize: '15px', fontWeight: 500, outline: 'none'
+                            }}
+                          >
+                            <option value="" style={{ background: T.background, color: T.text }}>Select your batch & section...</option>
+                            {batches.map(b => (
+                              <option key={b.id} value={b.id} style={{ background: T.background, color: T.text }}>{b.name || `${b.graduation_year} Batch - Section ${b.section}`}</option>
+                            ))}
+                          </select>
+                        </div>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                          <InputField label="Roll No" value={rollNo} onChange={setRollNo} T={T} isDark={isDark} />
+                          <InputField label="Reg No" value={regNo} onChange={setRegNo} T={T} isDark={isDark} />
+                        </div>
+                      </motion.div>
+                    )}
+
+                    <InputField label="Create Password" icon={<Lock size={18} />} placeholder="Min 8 chars" value={password} onChange={setPassword} type="password" T={T} isDark={isDark} />
+                    <PrimaryButton loading={loading} text="Create Account" T={T} isDark={isDark} />
+                  </div>
                 </motion.form>
               )}
 
@@ -320,20 +428,7 @@ function LoginContent() {
           </div>
         </FadeUp>
 
-        {/* Roles Hint */}
-        <FadeUp delay={0.2}>
-          <div style={{ marginTop: '32px', display: 'flex', justifyContent: 'center', gap: '20px', flexWrap: 'wrap' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: T.muted, fontSize: '12px', fontWeight: 600 }}>
-              <ShieldCheck size={14} style={{ color: '#E24B4A' }} /> Admin Controls
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: T.muted, fontSize: '12px', fontWeight: 600 }}>
-              <UserCheck size={14} style={{ color: '#534AB7' }} /> Verified Access
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: T.muted, fontSize: '12px', fontWeight: 600 }}>
-              <Database size={14} style={{ color: '#0F6E56' }} /> Central Vault
-            </div>
-          </div>
-        </FadeUp>
+        {/* Footer hints removed */}
       </div>
     </div>
   )

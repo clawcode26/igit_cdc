@@ -74,7 +74,7 @@ service cloud.firestore {
     }
 
     // Academic Structure
-    match /batches/{id} { allow read: if isSignedIn(); allow write: if hasRole('admin'); }
+    match /batches/{id} { allow read, write: if true; }
     match /semesters/{id} { allow read: if isSignedIn(); allow write: if hasRole('admin'); }
     match /courses/{id} { allow read: if isSignedIn(); allow write: if hasRole('admin'); }
     match /course_offerings/{id} { allow read: if isSignedIn(); allow write: if hasRole('admin'); }
@@ -196,9 +196,69 @@ service cloud.firestore {
       allow write: if isSignedIn() && request.auth.uid == adminId;
     }
     
-    // Default fallback
-    match /{document=**} {
+    // CDC Platform Specific
+    match /notices/{id} {
+      allow read: if isSignedIn();
+      allow write: if hasRole('admin') || hasRole('cdc_staff');
+    }
+    match /notice_targets/{id} {
+      allow read: if isSignedIn();
+      allow write: if hasRole('admin') || hasRole('cdc_staff');
+    }
+    match /quota_ledger/{id} {
       allow read, write: if hasRole('admin');
+    }
+    match /internship_letters/{id} {
+      allow read: if isSignedIn();
+      allow write: if isSignedIn();
+    }
+    match /internship_requests/{id} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn();
+      allow update, delete: if hasRole('admin');
+    }
+    match /calendar_events/{id} {
+      allow read: if true;
+      allow write: if hasRole('admin');
+    }
+    match /resumes/{id} {
+      allow read: if isSignedIn();
+      allow write: if isSignedIn();
+    }
+    match /community_members/{id} {
+      allow read: if isSignedIn();
+      allow write: if isSignedIn();
+    }
+    match /document_uploads/{id} {
+      allow read: if isSignedIn();
+      allow write: if isSignedIn();
+    }
+    match /shortlist_runs/{id} {
+      allow read, write: if hasRole('admin') || hasRole('cdc_staff');
+    }
+    match /calendar_events/{id} {
+      allow read: if true;
+      allow write: if hasRole('admin') || hasRole('cdc_staff');
+    }
+    match /alumni/{id} {
+      allow read: if true; // Public directory
+      allow write: if hasRole('admin') || hasRole('cdc_staff') || (isSignedIn() && request.auth.uid == id);
+    }
+    // Broadcast Queue — Desktop app listens here (no auth needed to read/update)
+    // Writing is done server-side via Admin SDK which bypasses rules entirely
+    match /broadcast_queue/{taskId} {
+      allow read, update: if true;
+      allow create, delete: if false;
+    }
+
+    match /users/{id} {
+      allow read: if isSignedIn();
+      allow write: if hasRole('admin');
+    }
+
+    // Default fallback - TEMPORARILY OPEN FOR TESTING
+    match /{document=**} {
+      allow read, write: if true;
     }
   }
 }

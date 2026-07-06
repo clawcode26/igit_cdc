@@ -27,7 +27,7 @@ export function AdminDepartmentsClient() {
   const [showCreate, setShowCreate] = useState(false)
   const [creating, setCreating] = useState(false)
   const [form, setForm] = useState({
-    name: 'Civil Engineering',
+    name: 'Career Development Centre',
     code: 'CE',
     description: '',
     hod_id: '',
@@ -111,7 +111,7 @@ export function AdminDepartmentsClient() {
       
       setShowCreate(false)
       setEditingDept(null)
-      setForm({ name: 'Civil Engineering', code: 'CE', description: '', hod_id: '', established_year: new Date().getFullYear() })
+      setForm({ name: 'Career Development Centre', code: 'CDC', description: '', hod_id: '', established_year: new Date().getFullYear() })
     } catch (err) {
       toast.error('Operation failed')
     } finally {
@@ -140,7 +140,7 @@ export function AdminDepartmentsClient() {
           <h2 className="section-heading">Departments</h2>
           <p className="secondary-text">Manage academic wings and department leaders</p>
         </div>
-        <button onClick={() => { setEditingDept(null); setForm({ name: 'Civil Engineering', code: 'CE', description: '', hod_id: '', established_year: new Date().getFullYear() }); setShowCreate(true); }} className="btn btn-filled" style={{ background: '#E24B4A', borderColor: '#E24B4A' }}>
+        <button onClick={() => { setEditingDept(null); setForm({ name: 'Career Development Centre', code: 'CDC', description: '', hod_id: '', established_year: new Date().getFullYear() }); setShowCreate(true); }} className="btn btn-filled" style={{ background: '#E24B4A', borderColor: '#E24B4A' }}>
           Add Department
         </button>
       </div>

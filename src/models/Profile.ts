@@ -4,7 +4,7 @@ const ProfileSchema = new Schema({
   firebase_uid: { type: String, required: true, unique: true },
   role: { 
     type: String, 
-    enum: ['admin', 'hod', 'faculty', 'student', 'alumni'],
+    enum: ['admin', 'hod', 'faculty', 'student', 'alumni', 'super_admin', 'cdc_staff', 'dept_coordinator'],
     required: true 
   },
   full_name: String,

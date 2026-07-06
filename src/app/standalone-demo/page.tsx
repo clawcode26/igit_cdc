@@ -10,7 +10,7 @@ import {
 // --- DUMMY DATA ---
 const DUMMY_SUBJECTS = [
   { code: 'CS301', name: 'Database Systems', dept: 'Computer Science', credits: 4 },
-  { code: 'CE405', name: 'Structural Analysis', dept: 'Civil Engg', credits: 3 },
+  { code: 'CDC405', name: 'Structural Analysis', dept: 'CDC', credits: 3 },
   { code: 'ME201', name: 'Thermodynamics', dept: 'Mechanical Engg', credits: 4 },
   { code: 'EE101', name: 'Basic Electrical', dept: 'Electrical Engg', credits: 3 },
   { code: 'HS102', name: 'Professional Ethics', dept: 'Humanities', credits: 2 },
@@ -18,7 +18,7 @@ const DUMMY_SUBJECTS = [
 
 const DUMMY_FACULTY = [
   { id: 'f1', name: 'Dr. Sarah Connor', initials: 'SC', color: 'bg-indigo-500', dept: 'Computer Science' },
-  { id: 'f2', name: 'Prof. John Smith', initials: 'JS', color: 'bg-emerald-500', dept: 'Civil Engg' },
+  { id: 'f2', name: 'Prof. John Smith', initials: 'JS', color: 'bg-emerald-500', dept: 'CDC' },
   { id: 'f3', name: 'Dr. Emily Chen', initials: 'EC', color: 'bg-amber-500', dept: 'Mechanical Engg' },
   { id: 'f4', name: 'Dr. Alan Turing', initials: 'AT', color: 'bg-rose-500', dept: 'Computer Science' },
 ];
@@ -30,7 +30,7 @@ const INITIAL_ASSIGNMENTS = [
   { id: '4', subject: DUMMY_SUBJECTS[3], faculty: DUMMY_FACULTY[3], semester: 'Sem 1', status: 'Completed', progress: 100, dueDate: 'Jul 20, 2026', comments: 12 },
   { id: '5', subject: DUMMY_SUBJECTS[4], faculty: DUMMY_FACULTY[0], semester: 'Sem 5', status: 'In Progress', progress: 70, dueDate: 'Oct 10, 2026', comments: 1 },
   { id: '6', subject: { code: 'CS402', name: 'Machine Learning', dept: 'Computer Science', credits: 4 }, faculty: null, semester: 'Sem 7', status: 'Unassigned', progress: 0, dueDate: 'Aug 01, 2026', comments: 0 },
-  { id: '7', subject: { code: 'CE302', name: 'Fluid Mechanics', dept: 'Civil Engg', credits: 4 }, faculty: DUMMY_FACULTY[1], semester: 'Sem 5', status: 'Assigned', progress: 0, dueDate: 'Aug 20, 2026', comments: 0 },
+  { id: '7', subject: { code: 'CDC302', name: 'Fluid Mechanics', dept: 'CDC', credits: 4 }, faculty: DUMMY_FACULTY[1], semester: 'Sem 5', status: 'Assigned', progress: 0, dueDate: 'Aug 20, 2026', comments: 0 },
   { id: '8', subject: { code: 'EE305', name: 'Control Systems', dept: 'Electrical Engg', credits: 3 }, faculty: DUMMY_FACULTY[2], semester: 'Sem 5', status: 'Completed', progress: 100, dueDate: 'Jul 25, 2026', comments: 3 },
   { id: '9', subject: { code: 'HS201', name: 'Economics', dept: 'Humanities', credits: 3 }, faculty: DUMMY_FACULTY[0], semester: 'Sem 3', status: 'In Progress', progress: 20, dueDate: 'Oct 01, 2026', comments: 4 },
 ];

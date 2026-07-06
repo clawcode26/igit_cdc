@@ -8,6 +8,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useTheme } from '@/context/ThemeContext'
 import { Footer } from '@/components/landing/Footer'
 import { Header } from '@/components/landing/Header'
+import { LandingCalendar } from '@/components/landing/LandingCalendar'
 
 // ─── Scroll-aware fade+slide animation wrapper ────────────────────────────────
 const FadeUp = ({ children, delay = 0, style, className }: { children: React.ReactNode; delay?: number; style?: React.CSSProperties; className?: string }) => (
@@ -131,12 +132,13 @@ export default function LandingPage() {
 
   const [faculties, setFaculties] = useState<Profile[]>([])
   const [notices, setNotices] = useState<any[]>([])
+  const [calendarEvents, setCalendarEvents] = useState<any[]>([])
   const [hod, setHod] = useState<Profile | null>(null)
   const [loading, setLoading] = useState(true)
   const [hodImageLoaded, setHodImageLoaded] = useState(false)
 
   const [settings, setSettings] = useState({
-    title: 'Civil Engineering Department, IGIT SARANG',
+    title: 'Career Development Centre, IGIT SARANG',
     subtitle: 'A unified platform for students, faculty, and alumni to collaborate, learn, and grow together.',
     hod_quote: 'Our mission is to nurture technical excellence and ethical leadership in our students.',
     hod_name: 'Dr. Goutam Kumar Pothal',
@@ -192,7 +194,13 @@ export default function LandingPage() {
       const data = snap.docs.map(d => ({ id: d.id, ...d.data() } as any))
       setNotices(data.sort((a, b) => (b.created_at || '').localeCompare(a.created_at || '')).slice(0, 5))
     })
-    return () => { unsubNotices() }
+    
+    const unsubEvents = onSnapshot(collection(db, 'calendar_events'), snap => {
+      const data = snap.docs.map(d => ({ id: d.id, ...d.data() } as any))
+      setCalendarEvents(data)
+    })
+
+    return () => { unsubNotices(); unsubEvents(); }
   }, [])
 
   if (loading) {
@@ -325,6 +333,89 @@ export default function LandingPage() {
           </div>
         </section>
       )}
+
+      {/* ──────────────── CALENDAR & ARCHIVE ──────────────── */}
+      <section style={{ padding: isMobile ? '0 5% 80px' : '0 8% 120px', position: 'relative', zIndex: 1 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: isMobile ? '40px' : '64px' }}>
+          
+          {/* Big Responsive Calendar */}
+          <div>
+            <FadeUp>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: isMobile ? '24px' : '36px' }}>
+                <div style={{ background: '#10B981', color: '#FFFFFF', padding: '4px 16px', borderRadius: '10px', fontWeight: 900, fontSize: isMobile ? '20px' : '24px' }}>Event Calendar</div>
+              </div>
+            </FadeUp>
+            <FadeUp delay={0.1}>
+              <LandingCalendar events={calendarEvents} isDark={isDark} T={T} />
+            </FadeUp>
+          </div>
+
+          {/* Historical Archive */}
+          <div>
+            <FadeUp>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: isMobile ? '24px' : '36px' }}>
+                <div style={{ background: 'transparent', border: `2px solid ${T.border}`, color: T.text, padding: '2px 14px', borderRadius: '10px', fontWeight: 900, fontSize: isMobile ? '20px' : '24px' }}>Historical Archive</div>
+              </div>
+            </FadeUp>
+            <FadeUp delay={0.2}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                {calendarEvents.filter(e => e.status === 'finished').sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()).length > 0 ? (
+                  calendarEvents.filter(e => e.status === 'finished').sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()).slice(0, 5).map(ev => (
+                    <div key={ev.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 20px', background: isDark ? 'rgba(255,255,255,0.01)' : 'rgba(0,0,0,0.01)', borderBottom: `1px solid ${T.border}` }}>
+                      <div>
+                        <div style={{ fontSize: '14px', fontWeight: 600, color: T.text, marginBottom: '2px' }}>{ev.title}</div>
+                        <div style={{ fontSize: '12px', color: T.muted, textTransform: 'capitalize' }}>{ev.type.replace('_', ' ')}</div>
+                      </div>
+                      <div style={{ fontSize: '12px', fontWeight: 600, color: T.muted, background: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)', padding: '4px 10px', borderRadius: '20px' }}>
+                        {new Date(ev.date).toLocaleDateString('en-US', { year: 'numeric', month: 'short' })}
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div style={{ padding: '24px', color: T.muted, fontSize: '14px', borderBottom: `1px solid ${T.border}` }}>No past events recorded yet.</div>
+                )}
+              </div>
+            </FadeUp>
+          </div>
+          
+        </div>
+      </section>
+
+      {/* ──────────────── EXECUTIVE WELCOME ──────────────── */}
+      <section style={{ padding: isMobile ? '60px 5%' : '100px 8%', background: isDark ? '#080C17' : '#F8FAFC', position: 'relative', zIndex: 1, borderTop: `1px solid ${T.border}` }}>
+        <FadeUp>
+          <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: isMobile ? '40px' : '60px', alignItems: 'center' }}>
+            {/* Left: Video */}
+            <div style={{ position: 'relative', width: '100%', aspectRatio: '16/9', borderRadius: '16px', overflow: 'hidden', boxShadow: T.shadow, border: `1px solid ${T.border}`, background: '#000' }}>
+              <iframe
+                src="https://www.youtube.com/embed/dQw4w9WgXcQ?rel=0&modestbranding=1"
+                title="Career Development Centre - Executive Welcome"
+                style={{ width: '100%', height: '100%', border: 'none' }}
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+              ></iframe>
+            </div>
+
+            {/* Right: Intro Note */}
+            <div>
+              <div style={{ display: 'inline-block', background: 'rgba(99, 102, 241, 0.1)', color: '#6366F1', padding: '6px 14px', borderRadius: '20px', fontWeight: 700, fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '20px' }}>
+                Executive Welcome
+              </div>
+              <h2 style={{ fontSize: isMobile ? '28px' : '36px', fontWeight: 900, color: T.text, marginBottom: '24px', lineHeight: 1.2 }}>
+                Message from the <br/><span style={{ color: '#6366F1' }}>Career Development Centre</span>
+              </h2>
+              <div style={{ color: T.muted, fontSize: '16px', lineHeight: 1.8 }}>
+                <p style={{ marginBottom: '16px' }}>
+                  Welcome to the official portal of the Career Development Centre at Indira Gandhi Institute of Technology, Sarang. Our primary objective is to bridge the gap between academic excellence and industry requirements.
+                </p>
+                <p>
+                  Through comprehensive training programs, dedicated mentorship, and strong corporate partnerships, we strive to empower every student to achieve their highest professional aspirations. Watch the video to learn more about our upcoming initiatives and vision for the academic year.
+                </p>
+              </div>
+            </div>
+          </div>
+        </FadeUp>
+      </section>
 
       <Footer />
     </div>

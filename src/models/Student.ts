@@ -1,23 +1,25 @@
 import mongoose, { Schema, model, models } from 'mongoose';
 
 const StudentSchema = new Schema({
-  firebase_uid: { type: String, required: true, unique: true }, // Links to Firebase Auth
-  full_name: { type: String, required: true },
+  firebase_uid: { type: String, required: true, unique: true },
+  registrationNo: { type: String, required: true, unique: true },
+  name: { type: String, required: true },
+  branch: { type: String, required: true },
+  batchYear: { type: Number, required: true },
+  currentSemester: { type: Number },
+  dob: { type: Date },
+  mobile: { type: String, required: true },
   email: { type: String, required: true },
-  department: { type: String, required: true },
-  batch_id: { type: String, required: true },
-  graduation_year: { type: Number, required: true },
-  attendance_summary: [
-    {
-      course_id: String,
-      course_name: String,
-      attendance_pct: Number,
-    }
-  ],
-  is_verified: { type: Boolean, default: false },
+  parentMobile: { type: String },
+  parentEmail: { type: String },
+  address: { type: String },
+  cgpa: { type: Number, default: 0 },
+  backlogCount: { type: Number, default: 0 },
+  gender: { type: String },
+  photoUrl: { type: String },
+  isVerified: { type: Boolean, default: false },
 }, { timestamps: true });
 
-// Avoid Re-registering the model on hot-reloads
 const Student = models.Student || model('Student', StudentSchema);
 
 export default Student;

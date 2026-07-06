@@ -184,7 +184,7 @@ export function Footer() {
             </div>
             <div>
               <strong>Email Inquiries</strong><br />
-              civil@igitsarang.ac.in
+              cdc@igitsarang.ac.in
             </div>
           </div>
         </div>
@@ -244,7 +244,7 @@ export function Footer() {
               <div style={{ textAlign: 'left' }}>
                 <div style={{ fontSize: '7.5px', color: '#6366F1', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '1px' }}>DEVELOPER FOR THIS PROJECT</div>
                 <div style={{ fontSize: '15px', fontWeight: 900, color: T.text, marginTop: '2px' }}>Priyankar Padhy</div>
-                <div style={{ fontSize: '10px', color: T.muted, fontWeight: 700, marginTop: '2px' }}>43rd Civil Engineering</div>
+                <div style={{ fontSize: '10px', color: T.muted, fontWeight: 700, marginTop: '2px' }}>Career Development Centre</div>
               </div>
               <div style={{ width: '32px', height: '32px', borderRadius: '10px', background: '#0077B5', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z" /></svg>
@@ -256,7 +256,7 @@ export function Footer() {
 
       <div className="bottom-bar">
         <div className="copyright">
-          © {new Date().getFullYear()} Dept. of Civil Engineering, IGIT Sarang. All rights reserved.
+          © {new Date().getFullYear()} Career Development Centre, IGIT Sarang. All rights reserved.
         </div>
       </div>
     </footer>

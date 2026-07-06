@@ -17,6 +17,8 @@ import { Topbar } from '@/components/layout/Topbar'
 import { useAuth } from '@/context/AuthContext'
 import toast from 'react-hot-toast'
 import type { UserRole } from '@/types'
+import { NoticeComposer } from './NoticeComposer'
+import { Hash, Calendar, FileText, User, Users, Trash2, Pin } from 'lucide-react'
 
 interface Props {
   role: UserRole
@@ -28,7 +30,7 @@ export function AnnouncementsManager({ role, accentColor }: Props) {
   const [announcements, setAnnouncements] = useState<any[]>([])
   const [batches, setBatches] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
-  const [showCreate, setShowCreate] = useState(false)
+  const [activeTab, setActiveTab] = useState<'NEW' | 'EXISTING'>('EXISTING')
   const [creating, setCreating] = useState(false)
 
   const [newAnn, setNewAnn] = useState({
@@ -39,23 +41,27 @@ export function AnnouncementsManager({ role, accentColor }: Props) {
     is_pinned: false
   })
 
-  useEffect(() => {
-    async function fetchData() {
-      try {
-        const q = query(collection(db, 'announcements'), orderBy('created_at', 'desc'), limit(50))
-        const snap = await getDocs(q)
-        setAnnouncements(snap.docs.map(d => ({ id: d.id, ...d.data() })))
+  const fetchData = async () => {
+    try {
+      setLoading(true)
+      const q = query(collection(db, 'notices'), orderBy('created_at', 'desc'), limit(50))
+      const snap = await getDocs(q)
+      setAnnouncements(snap.docs.map(d => ({ id: d.id, ...d.data() })))
 
-        const batchSnap = await getDocs(collection(db, 'batches'))
-        setBatches(batchSnap.docs.map(d => ({ id: d.id, ...d.data() })))
-      } catch (err) {
-        console.error('Error fetching announcements:', err)
-      } finally {
-        setLoading(false)
-      }
+      const batchSnap = await getDocs(collection(db, 'batches'))
+      setBatches(batchSnap.docs.map(d => ({ id: d.id, ...d.data() })))
+    } catch (err) {
+      console.error('Error fetching notices:', err)
+    } finally {
+      setLoading(false)
     }
-    fetchData()
-  }, [])
+  }
+
+  useEffect(() => {
+    if (activeTab === 'EXISTING') {
+      fetchData()
+    }
+  }, [activeTab])
 
   async function handleCreate(e: React.FormEvent) {
     e.preventDefault()
@@ -72,10 +78,10 @@ export function AnnouncementsManager({ role, accentColor }: Props) {
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString()
       }
-      const docRef = await addDoc(collection(db, 'announcements'), data)
+      const docRef = await addDoc(collection(db, 'notices'), data)
       setAnnouncements(prev => [{ id: docRef.id, ...data }, ...prev])
       toast.success('Announcement posted!')
-      setShowCreate(false)
+      setActiveTab('EXISTING')
       setNewAnn({ title: '', body: '', target_role: 'all', target_batch_id: '', is_pinned: false })
     } catch (err) {
       toast.error('Failed to post announcement')
@@ -84,10 +90,21 @@ export function AnnouncementsManager({ role, accentColor }: Props) {
     }
   }
 
+  function timeAgo(dateStr: string | null) {
+    if (!dateStr) return '—'
+    const diff = Date.now() - new Date(dateStr).getTime()
+    const mins = Math.floor(diff / 60000)
+    if (mins < 1) return 'Just now'
+    if (mins < 60) return `${mins}m ago`
+    const hrs = Math.floor(mins / 60)
+    if (hrs < 24) return `${hrs}h ago`
+    return `${Math.floor(hrs / 24)}d ago`
+  }
+
   async function handleDelete(id: string) {
-    if (!confirm('Are you sure you want to delete this announcement?')) return
+    if (!confirm('Are you sure you want to delete this notice?')) return
     try {
-      await deleteDoc(doc(db, 'announcements', id))
+      await deleteDoc(doc(db, 'notices', id))
       setAnnouncements(prev => prev.filter(a => a.id !== id))
       toast.success('Deleted')
     } catch (err) {
@@ -97,7 +114,7 @@ export function AnnouncementsManager({ role, accentColor }: Props) {
 
   async function togglePin(a: any) {
     try {
-      await updateDoc(doc(db, 'announcements', a.id), { is_pinned: !a.is_pinned })
+      await updateDoc(doc(db, 'notices', a.id), { is_pinned: !a.is_pinned })
       setAnnouncements(prev => prev.map(item => item.id === a.id ? { ...item, is_pinned: !a.is_pinned } : item))
     } catch (err) {
       toast.error('Update failed')
@@ -108,97 +125,110 @@ export function AnnouncementsManager({ role, accentColor }: Props) {
 
   return (
     <>
-      <Topbar title="Announcements" accentColor={accentColor} />
-      <div className="content-container">
-        <div className="section-row" style={{ marginBottom: '20px' }}>
-          <div>
-            <h2 className="section-heading">Manage Announcements</h2>
-            <p className="secondary-text">Broadcast messages to the department</p>
-          </div>
-          <button onClick={() => setShowCreate(true)} className="btn btn-filled" style={{ background: accentColor, borderColor: accentColor }}>
-            Post New
-          </button>
-        </div>
-
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-          {announcements.map(a => (
-            <div key={a.id} className="card" style={{ borderLeft: a.is_pinned ? `4px solid ${accentColor}` : '1px solid var(--border-color)' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
-                <div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
-                    {a.is_pinned && <span className="badge badge-info">Pinned</span>}
-                    <h3 style={{ fontSize: '15px', fontWeight: 600 }}>{a.title}</h3>
-                  </div>
-                  <div style={{ fontSize: '11px', color: 'var(--text-tertiary)' }}>
-                    Posted by {a.author_name} · {new Date(a.created_at).toLocaleString()}
-                  </div>
-                </div>
-                <div style={{ display: 'flex', gap: '4px' }}>
-                  <button onClick={() => togglePin(a)} className="btn btn-sm btn-ghost" title={a.is_pinned ? 'Unpin' : 'Pin'}>
-                    📌
-                  </button>
-                  <button onClick={() => handleDelete(a.id)} className="btn btn-sm btn-ghost" style={{ color: 'var(--status-error)' }}>
-                    🗑
-                  </button>
-                </div>
-              </div>
-              <p style={{ fontSize: '14px', color: 'var(--text-secondary)', whiteSpace: 'pre-wrap' }}>{a.body}</p>
-              <div style={{ marginTop: '12px', display: 'flex', gap: '8px' }}>
-                {a.target_role && <span className="badge badge-neutral">Role: {a.target_role}</span>}
-                {a.target_batch_id && <span className="badge badge-neutral">Batch: {batches.find(b => b.id === a.target_batch_id)?.graduation_year || 'Batch'}</span>}
-                {!a.target_role && !a.target_batch_id && <span className="badge badge-neutral">Everyone</span>}
-              </div>
-            </div>
-          ))}
-          {announcements.length === 0 && <div className="empty-state">No announcements yet.</div>}
-        </div>
+      <Topbar title="Notices & Broadcast" accentColor={accentColor} />
+      
+      <div style={{ display: 'flex', borderBottom: '1px solid var(--border-color)', marginBottom: '24px', padding: '0 32px', gap: '24px' }}>
+        <button 
+          onClick={() => setActiveTab('EXISTING')} 
+          style={{ padding: '16px 0 14px', fontSize: '14px', fontWeight: 600, borderBottom: activeTab === 'EXISTING' ? `2px solid ${accentColor}` : 'none', color: activeTab === 'EXISTING' ? 'var(--text-primary)' : 'var(--text-tertiary)', background: 'none', borderTop: 'none', borderLeft: 'none', borderRight: 'none', cursor: 'pointer' }}
+        >
+          Existing Notices
+        </button>
+        <button 
+          onClick={() => setActiveTab('NEW')} 
+          style={{ padding: '16px 0 14px', fontSize: '14px', fontWeight: 600, borderBottom: activeTab === 'NEW' ? `2px solid ${accentColor}` : 'none', color: activeTab === 'NEW' ? 'var(--text-primary)' : 'var(--text-tertiary)', background: 'none', borderTop: 'none', borderLeft: 'none', borderRight: 'none', cursor: 'pointer' }}
+        >
+          New Post
+        </button>
       </div>
 
-      {showCreate && (
-        <div className="modal-overlay" onClick={() => setShowCreate(false)}>
-          <div className="card modal-content" onClick={e => e.stopPropagation()} style={{ maxWidth: '540px' }}>
-            <h2 className="section-heading" style={{ marginBottom: '20px' }}>Create Announcement</h2>
-            <form onSubmit={handleCreate} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-              <div className="form-group">
-                <label className="form-label">Title</label>
-                <input className="form-input" required value={newAnn.title} onChange={e => setNewAnn(p => ({ ...p, title: e.target.value }))} />
+      <div style={{ padding: '0 32px' }}>
+        {activeTab === 'NEW' ? (
+          <NoticeComposer accentColor={accentColor} onCancel={() => setActiveTab('EXISTING')} />
+        ) : (
+          <div>
+            <div className="section-row" style={{ marginBottom: '20px' }}>
+              <div>
+                <h2 className="section-heading">Manage Announcements</h2>
+                <p className="secondary-text">View and manage broadcasted notices.</p>
               </div>
-              <div className="form-group">
-                <label className="form-label">Message Content</label>
-                <textarea className="form-input" rows={6} required value={newAnn.body} onChange={e => setNewAnn(p => ({ ...p, body: e.target.value }))} />
-              </div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-                <div className="form-group">
-                  <label className="form-label">Target Role</label>
-                  <select className="form-input" value={newAnn.target_role} onChange={e => setNewAnn(p => ({ ...p, target_role: e.target.value as any }))}>
-                    <option value="all">Everyone</option>
-                    <option value="student">Students Only</option>
-                    <option value="faculty">Faculty Only</option>
-                    <option value="hod">HOD Only</option>
-                  </select>
-                </div>
-                <div className="form-group">
-                  <label className="form-label">Target Batch (Optional)</label>
-                  <select className="form-input" value={newAnn.target_batch_id} onChange={e => setNewAnn(p => ({ ...p, target_batch_id: e.target.value }))}>
-                    <option value="">All Batches</option>
-                    {batches.map(b => <option key={b.id} value={b.id}>{b.graduation_year} — Section {b.section}</option>)}
-                  </select>
-                </div>
-              </div>
-              <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', cursor: 'pointer' }}>
-                <input type="checkbox" checked={newAnn.is_pinned} onChange={e => setNewAnn(p => ({ ...p, is_pinned: e.target.checked }))} />
-                Pin this announcement
-              </label>
-              <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
-                <button type="button" className="btn btn-ghost" style={{ flex: 1 }} onClick={() => setShowCreate(false)}>Cancel</button>
-                <button type="submit" className="btn btn-filled" style={{ flex: 1, background: accentColor, borderColor: accentColor }} disabled={creating}>
-                  {creating ? 'Posting...' : 'Post Announcement'}
-                </button>
-              </div>
-            </form>
+              <button onClick={() => setActiveTab('NEW')} className="btn btn-filled" style={{ background: accentColor, borderColor: accentColor }}>
+                Post New
+              </button>
+            </div>
+
+            <div style={{ background: 'var(--surface-primary)', borderRadius: '8px', border: '1px solid #E2E8F0', overflowX: 'auto' }}>
+              <table className="data-table spreadsheet-table">
+                <thead>
+                  <tr>
+                    <th style={{ borderRight: '1px solid #E2E8F0', width: '120px' }}><div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><Hash size={14} /> Ref No</div></th>
+                    <th style={{ borderRight: '1px solid #E2E8F0', width: '120px' }}><div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><Calendar size={14} /> Date</div></th>
+                    <th style={{ borderRight: '1px solid #E2E8F0' }}><div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><FileText size={14} /> Subject</div></th>
+                    <th style={{ borderRight: '1px solid #E2E8F0', width: '140px' }}><div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><Users size={14} /> Target</div></th>
+                    <th style={{ borderRight: '1px solid #E2E8F0', width: '160px' }}><div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><User size={14} /> Author</div></th>
+                    <th style={{ width: '120px', textAlign: 'center' }}>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {announcements.map(a => {
+                    const dateIssued = a.dateIssued ? new Date(a.dateIssued).toLocaleDateString() : timeAgo(a.created_at);
+                    return (
+                      <tr key={a.id} style={{ background: a.is_pinned ? 'var(--surface-secondary)' : 'transparent' }}>
+                        <td style={{ fontWeight: 500, color: 'var(--text-secondary)', borderRight: '1px solid #E2E8F0' }}>
+                          {a.refNo || a.id.slice(0,8).toUpperCase()}
+                        </td>
+                        <td style={{ color: 'var(--text-secondary)', borderRight: '1px solid #E2E8F0' }}>
+                          {dateIssued}
+                        </td>
+                        <td style={{ fontWeight: 500, color: 'var(--text-primary)', borderRight: '1px solid #E2E8F0' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            {a.is_pinned && <span style={{ color: accentColor }}><Pin size={14} fill={accentColor} /></span>}
+                            {a.title || a.subject || 'Untitled Notice'}
+                          </div>
+                        </td>
+                        <td style={{ borderRight: '1px solid #E2E8F0' }}>
+                          <span className="badge badge-neutral">
+                            {a.target_role ? `Role: ${a.target_role}` : a.target_batch_id ? `Batch: ${batches.find(b => b.id === a.target_batch_id)?.graduation_year}` : 'Everyone'}
+                          </span>
+                        </td>
+                        <td style={{ color: 'var(--text-secondary)', borderRight: '1px solid #E2E8F0' }}>
+                          {a.author_name || a.undersigned || 'Admin'}
+                        </td>
+                        <td style={{ textAlign: 'center' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                            {a.mediaUrl ? (
+                              <a href={`/api/github/download?url=${encodeURIComponent(a.mediaUrl)}`} target="_blank" rel="noreferrer" className="btn btn-sm btn-ghost" style={{ padding: '4px', color: '#0EA5E9' }} title="View PDF">
+                                <FileText size={16} />
+                              </a>
+                            ) : (
+                              <button disabled className="btn btn-sm btn-ghost" style={{ padding: '4px', color: 'var(--text-tertiary)', opacity: 0.5 }} title="No PDF Attached">
+                                <FileText size={16} />
+                              </button>
+                            )}
+                            <button onClick={() => togglePin(a)} className="btn btn-sm btn-ghost" style={{ padding: '4px', color: a.is_pinned ? accentColor : 'var(--text-tertiary)' }} title={a.is_pinned ? 'Unpin' : 'Pin'}>
+                              <Pin size={16} />
+                            </button>
+                            <button onClick={() => handleDelete(a.id)} className="btn btn-sm btn-ghost" style={{ padding: '4px', color: '#E74C3C' }} title="Delete">
+                              <Trash2 size={16} />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    )
+                  })}
+                  {announcements.length === 0 && (
+                    <tr>
+                      <td colSpan={6} style={{ textAlign: 'center', padding: '40px', color: 'var(--text-tertiary)' }}>
+                        No notices broadcasted yet.
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </>
   )
 }

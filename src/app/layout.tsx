@@ -13,10 +13,10 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   title: {
-    default: 'Civil Dept | IGIT Sarang',
-    template: '%s | Civil Dept IGIT'
+    default: 'CDC | IGIT Sarang',
+    template: '%s | CDC IGIT'
   },
-  description: 'Official portal for Civil Engineering Department, Indira Gandhi Institute of Technology (IGIT), Sarang.',
+  description: 'Official portal for Career Development Centre, Indira Gandhi Institute of Technology (IGIT), Sarang.',
   icons: {
     icon: '/igit-logo.png',
   },
@@ -32,7 +32,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={inter.variable}>
+      <body className={inter.variable} suppressHydrationWarning>
         <Suspense fallback={null}>
           <RouteProgressBar />
         </Suspense>

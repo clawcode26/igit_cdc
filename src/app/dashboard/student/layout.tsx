@@ -51,6 +51,11 @@ const studentNavItems = [
     icon: <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" stroke="currentColor" strokeWidth="1.5"/><path d="M22 6l-10 7L2 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/></svg>,
   },
   {
+    href: '/dashboard/student/internship-letter',
+    label: 'Internship Letter',
+    icon: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" style={{ color: '#0EA5E9' }}><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/><path d="M14 2v6h6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/><path d="M16 13H8M16 17H8M10 9H8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/></svg>,
+  },
+  {
     href: '/dashboard/student/mentorship',
     label: 'Alumni Mentorship',
     icon: <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" stroke="currentColor" strokeWidth="1.5"/><circle cx="9" cy="7" r="4" stroke="currentColor" strokeWidth="1.5"/><path d="M23 21v-2a4 4 0 00-3-3.87" stroke="currentColor" strokeWidth="1.5"/><path d="M16 3.13a4 4 0 010 7.75" stroke="currentColor" strokeWidth="1.5"/></svg>,

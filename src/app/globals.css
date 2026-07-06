@@ -734,10 +734,11 @@ select.form-input {
   inset: 0;
   background: rgba(0, 0, 0, 0.4);
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
   z-index: 1000;
-  padding: 20px;
+  padding: 40px 20px;
+  overflow-y: auto;
 }
 
 .modal-content {
@@ -747,6 +748,7 @@ select.form-input {
   overflow: hidden;
   max-width: 500px;
   width: 100%;
+  margin: auto;
 }
 
 .data-table-container {
