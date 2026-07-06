@@ -3,9 +3,23 @@ import * as admin from 'firebase-admin';
 // Lazy initializer for Firebase Admin Firestore
 function getDb(): admin.firestore.Firestore {
   if (!admin.apps.length) {
-    const privateKey = (process.env.FIREBASE_PRIVATE_KEY || '')
-      .replace(/\\n/g, '\n')
-      .replace(/^['"]|['"]$/g, ''); // Fix for quoted env vars in .env.local
+    let privateKey = process.env.FIREBASE_PRIVATE_KEY || '';
+    
+    // Trim any outer whitespace
+    privateKey = privateKey.trim();
+    
+    // Remove surrounding quotes if they exist
+    if (privateKey.startsWith('"') && privateKey.endsWith('"')) {
+      privateKey = privateKey.slice(1, -1);
+    } else if (privateKey.startsWith("'") && privateKey.endsWith("'")) {
+      privateKey = privateKey.slice(1, -1);
+    }
+    
+    // Replace escaped newlines (\n) with actual newlines
+    privateKey = privateKey.replace(/\\n/g, '\n');
+    
+    // If it's still double-escaped, clean it again
+    privateKey = privateKey.replace(/\\\\n/g, '\n');
 
     if (!process.env.FIREBASE_CLIENT_EMAIL || !privateKey) {
       throw new Error(
