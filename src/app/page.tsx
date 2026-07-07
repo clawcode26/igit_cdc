@@ -29,12 +29,12 @@ const ExpandableNotice = ({ notice, delay, T, isDark, index }: any) => {
   const [open, setOpen] = useState(false)
   return (
     <FadeUp delay={delay}>
-      <motion.div 
+      <motion.div
         whileHover={{ x: 6, borderColor: 'rgba(100,121,255,0.5)' }}
         onClick={() => setOpen(!open)}
         style={{
-          background: open ? (isDark ? 'rgba(100,121,255,0.08)' : 'rgba(100,121,255,0.04)') : T.surface, 
-          border: `1px solid ${open ? 'rgba(100,121,255,0.5)' : T.border}`, 
+          background: open ? (isDark ? 'rgba(100,121,255,0.08)' : 'rgba(100,121,255,0.04)') : T.surface,
+          border: `1px solid ${open ? 'rgba(100,121,255,0.5)' : T.border}`,
           borderRadius: '16px', padding: '18px 24px', cursor: 'pointer', overflow: 'hidden',
           backdropFilter: isDark ? 'blur(10px)' : 'none', transition: 'all 0.3s',
           boxShadow: T.shadow,
@@ -56,7 +56,7 @@ const ExpandableNotice = ({ notice, delay, T, isDark, index }: any) => {
             </motion.div>
           </div>
         </div>
-        
+
         <AnimatePresence>
           {open && (
             <motion.div
@@ -67,14 +67,14 @@ const ExpandableNotice = ({ notice, delay, T, isDark, index }: any) => {
             >
               <div style={{ paddingTop: '16px', marginTop: '14px', borderTop: `1px solid ${T.border}`, fontSize: '14px', color: T.muted, lineHeight: 1.6 }}>
                 {notice.description || notice.content || 'No additional details provided for this notice.'}
-                
+
                 {(notice.file_url || notice.link) && (
                   <div style={{ marginTop: '16px' }}>
-                    <a href={notice.file_url || notice.link} target="_blank" rel="noopener noreferrer" 
-                       style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: '#6479FF', color: '#fff', padding: '8px 16px', borderRadius: '8px', textDecoration: 'none', fontWeight: 700, fontSize: '12px', transition: 'all 0.2s' }} 
-                       onClick={e => e.stopPropagation()}
-                       onMouseOver={e => (e.currentTarget.style.transform = 'translateY(-2px)')}
-                       onMouseOut={e => (e.currentTarget.style.transform = 'translateY(0)')}
+                    <a href={notice.file_url || notice.link} target="_blank" rel="noopener noreferrer"
+                      style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: '#6479FF', color: '#fff', padding: '8px 16px', borderRadius: '8px', textDecoration: 'none', fontWeight: 700, fontSize: '12px', transition: 'all 0.2s' }}
+                      onClick={e => e.stopPropagation()}
+                      onMouseOver={e => (e.currentTarget.style.transform = 'translateY(-2px)')}
+                      onMouseOut={e => (e.currentTarget.style.transform = 'translateY(0)')}
                     >
                       {notice.file_url ? '📄 View Document' : '🔗 Open Link'}
                     </a>
@@ -141,7 +141,7 @@ export default function LandingPage() {
     title: 'Career Development Centre, IGIT SARANG',
     subtitle: 'A unified platform for students, faculty, and alumni to collaborate, learn, and grow together.',
     hod_quote: 'Our mission is to nurture technical excellence and ethical leadership in our students.',
-    hod_name: 'Dr. Goutam Kumar Pothal',
+    hod_name: 'John Doe',
     hod_photo_url: '',
     show_faculties: true,
     show_gallery: true,
@@ -150,20 +150,20 @@ export default function LandingPage() {
 
   // Dynamic theme tokens - Premium Indigo & Slate
   const T = {
-    bg:        isDark ? '#020617'              : '#FFFFFF',
-    surface:   isDark ? 'rgba(15, 23, 42, 0.6)' : 'rgba(248, 250, 252, 0.8)',
-    border:    isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)',
-    text:      isDark ? '#F1F5F9'              : '#0F172A',
-    muted:     isDark ? '#94A3B8'              : '#64748B',
-    faint:     isDark ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.02)',
-    navBg:     isDark ? 'rgba(2, 6, 23, 0.85)'  : 'rgba(255, 255, 255, 0.85)',
+    bg: isDark ? '#020617' : '#FFFFFF',
+    surface: isDark ? 'rgba(15, 23, 42, 0.6)' : 'rgba(248, 250, 252, 0.8)',
+    border: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)',
+    text: isDark ? '#F1F5F9' : '#0F172A',
+    muted: isDark ? '#94A3B8' : '#64748B',
+    faint: isDark ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.02)',
+    navBg: isDark ? 'rgba(2, 6, 23, 0.85)' : 'rgba(255, 255, 255, 0.85)',
     navBorder: isDark ? 'rgba(99, 102, 241, 0.15)' : 'rgba(99, 102, 241, 0.08)',
-    orbA:      isDark ? 'rgba(99, 102, 241, 0.12)' : 'rgba(99, 102, 241, 0.15)',
-    orbB:      isDark ? 'rgba(139, 92, 246, 0.10)' : 'rgba(139, 92, 246, 0.12)',
-    shadow:    isDark ? '0 10px 40px rgba(0,0,0,0.3)' : '0 10px 30px rgba(99, 102, 241, 0.05)',
-    accent:    '#6366F1',
+    orbA: isDark ? 'rgba(99, 102, 241, 0.12)' : 'rgba(99, 102, 241, 0.15)',
+    orbB: isDark ? 'rgba(139, 92, 246, 0.10)' : 'rgba(139, 92, 246, 0.12)',
+    shadow: isDark ? '0 10px 40px rgba(0,0,0,0.3)' : '0 10px 30px rgba(99, 102, 241, 0.05)',
+    accent: '#6366F1',
     accentDark: '#4F46E5',
-    success:   '#6366F1',
+    success: '#6366F1',
   }
 
   const [isMobile, setIsMobile] = useState(false)
@@ -194,7 +194,7 @@ export default function LandingPage() {
       const data = snap.docs.map(d => ({ id: d.id, ...d.data() } as any))
       setNotices(data.sort((a, b) => (b.created_at || '').localeCompare(a.created_at || '')).slice(0, 5))
     })
-    
+
     const unsubEvents = onSnapshot(collection(db, 'calendar_events'), snap => {
       const data = snap.docs.map(d => ({ id: d.id, ...d.data() } as any))
       setCalendarEvents(data)
@@ -231,18 +231,18 @@ export default function LandingPage() {
         <FadeUp delay={0.1}>
           <div style={{ width: '100%' }}>
             <h2 style={{ fontSize: isMobile ? '28px' : '36px', fontWeight: 900, color: T.text, marginBottom: '24px' }}>About the Institute</h2>
-            
+
             <div style={{ color: T.muted, fontSize: '15px', lineHeight: 1.7 }}>
-              
+
               {/* FLOATED CARDS (HOD & Director) */}
-              <div style={{ 
-                float: isMobile ? 'none' : 'right', 
-                marginLeft: isMobile ? 0 : '40px', 
-                marginBottom: isMobile ? '32px' : '24px', 
-                width: isMobile ? '100%' : '420px', 
-                display: 'flex', 
-                flexDirection: 'column', 
-                gap: '20px' 
+              <div style={{
+                float: isMobile ? 'none' : 'right',
+                marginLeft: isMobile ? 0 : '40px',
+                marginBottom: isMobile ? '32px' : '24px',
+                width: isMobile ? '100%' : '420px',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '20px'
               }}>
                 {/* HOD Card */}
                 <motion.div
@@ -257,12 +257,12 @@ export default function LandingPage() {
                   <div style={{ flexShrink: 0 }}>
                     <img
                       src={settings.hod_photo_url || hod?.photo_url || `https://ui-avatars.com/api/?name=Dr+G+K+Pothal&background=6366F1&color=FFFFFF&size=512`}
-                      alt="HOD" 
-                      style={{ 
-                        width: '120px', 
-                        height: '120px', 
-                        borderRadius: '50%', 
-                        objectFit: 'cover', 
+                      alt="HOD"
+                      style={{
+                        width: '120px',
+                        height: '120px',
+                        borderRadius: '50%',
+                        objectFit: 'cover',
                         border: isDark ? '1px solid rgba(255,255,255,0.1)' : '1px solid rgba(0,0,0,0.1)',
                         opacity: hodImageLoaded ? 1 : 0,
                         transition: 'opacity 0.3s ease-out',
@@ -337,7 +337,7 @@ export default function LandingPage() {
       {/* ──────────────── CALENDAR & ARCHIVE ──────────────── */}
       <section style={{ padding: isMobile ? '0 5% 80px' : '0 8% 120px', position: 'relative', zIndex: 1 }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: isMobile ? '40px' : '64px' }}>
-          
+
           {/* Big Responsive Calendar */}
           <div>
             <FadeUp>
@@ -377,7 +377,7 @@ export default function LandingPage() {
               </div>
             </FadeUp>
           </div>
-          
+
         </div>
       </section>
 
@@ -402,7 +402,7 @@ export default function LandingPage() {
                 Executive Welcome
               </div>
               <h2 style={{ fontSize: isMobile ? '28px' : '36px', fontWeight: 900, color: T.text, marginBottom: '24px', lineHeight: 1.2 }}>
-                Message from the <br/><span style={{ color: '#6366F1' }}>Career Development Centre</span>
+                Message from the <br /><span style={{ color: '#6366F1' }}>Career Development Centre</span>
               </h2>
               <div style={{ color: T.muted, fontSize: '16px', lineHeight: 1.8 }}>
                 <p style={{ marginBottom: '16px' }}>
